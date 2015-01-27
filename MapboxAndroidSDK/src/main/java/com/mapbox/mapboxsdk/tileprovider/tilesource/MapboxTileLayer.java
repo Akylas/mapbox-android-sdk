@@ -2,7 +2,6 @@ package com.mapbox.mapboxsdk.tileprovider.tilesource;
 
 import android.text.TextUtils;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
-import com.mapbox.mapboxsdk.util.Utils;
 import com.mapbox.mapboxsdk.views.util.constants.MapViewConstants;
 
 import java.util.Locale;
