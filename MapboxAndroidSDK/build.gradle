@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.2'
+        classpath 'com.android.tools.build:gradle:1.0.0'
         classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.10.1'
     }
 }
@@ -32,14 +32,11 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:21.0.0'
-    compile 'com.squareup.okhttp:okhttp:2.0.0'
-    compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
+    compile 'com.android.support:support-v4:21.0.3'
+    compile 'com.squareup.okhttp:okhttp:2.2.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.2.0'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.jakewharton:disklrucache:2.0.2'
-    compile ('com.cocoahero.android:geojson:1.0.0@aar'){
-        transitive=true
-    }
 }
 
 android {
@@ -100,6 +97,7 @@ android.libraryVariants.all { variant ->
     checkstyle.exclude('**/BuildConfig.java')
     checkstyle.exclude('**/R.java')
     checkstyle.exclude('**/uk/co/senab/bitmapcache/*')
+    checkstyle.exclude('**/com/cocoahero/android/geojson/**')
     project.tasks.getByName("check").dependsOn checkstyle
 }
 

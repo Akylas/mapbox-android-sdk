@@ -33,6 +33,7 @@ public class Marker {
     private MapView mapView;
     private Icon icon;
     private Comparable mSortkey = null;
+    private boolean isUsingMakiIcon = true;
 
     protected String mUid;
     protected LatLng mLatLng;
@@ -58,6 +59,9 @@ public class Marker {
 
     /**
      * Construct a new Marker, given title, description, and place
+     * @param title Marker title
+     * @param description Marker description
+     * @param latLng Marker position
      */
     public Marker(String title, String description, LatLng latLng) {
         this(null, title, description, latLng);
@@ -84,15 +88,16 @@ public class Marker {
     }
 
     /**
-     * Attach this marker to a given mapview and that mapview's context
-     * @param mv the mapview to add this marker to
-     * @return
+     * Attach this marker to a given MapView and that MapView's context
+     * @param mv the MapView to add this marker to
+     * @return Marker
      */
     public Marker addTo(MapView mv) {
         if (mMarker == null) {
             //if there is an icon it means it's not loaded yet
             //thus change the drawable while waiting
             setMarker(mv.getDefaultPinDrawable());
+            isUsingMakiIcon = true;
         }
         mapView = mv;
         context = mv.getContext();
@@ -122,7 +127,8 @@ public class Marker {
 
     /**
      * Get this marker's tooltip, creating it if it doesn't exist yet.
-     * @return
+     * @param mv MapView
+     * @return InfoWindow
      */
     public InfoWindow getInfoWindow() {
         if (mInfoWindow == null) {
@@ -256,6 +262,11 @@ public class Marker {
         return mSortkey;
     }
 
+    /**
+     * Gets the custom image (Drawable) used for the Marker's image
+     * @param stateBitset State Of Marker (@see #ITEM_STATE_FOCUSED_MASK , @see #ITEM_STATE_PRESSED_MASK, @see #ITEM_STATE_SELECTED_MASK)
+     * @return marker drawable corresponding to stateBitset
+     */
     public Drawable getMarker(final int stateBitset) {
         // marker not specified
         if (mMarker == null) {
@@ -267,14 +278,23 @@ public class Marker {
         return mMarker;
     }
 
+    /**
+     * Set a custom image to be used as the Marker's image
+     * @param marker Drawable resource to be used as Marker image
+     */
     public void setMarker(final Drawable marker) {
         this.mMarker = marker;
         if (marker != null) {
             marker.setBounds(0, 0, marker.getIntrinsicWidth(), marker.getIntrinsicHeight());
+            isUsingMakiIcon = false;
         }
         invalidate();
     }
 
+    /**
+     * Sets the marker hotspot
+     * @param place Hotspot Location @see #HotspotPlace
+     */
     public void setHotspot(HotspotPlace place) {
         if (place == null) {
             place = HotspotPlace.BOTTOM_CENTER; //use same default than in osmdroid.
@@ -358,11 +378,16 @@ public class Marker {
     }
 
     public int getHeight() {
-        return this.mMarker.getIntrinsicHeight() / 2;
+        if (isUsingMakiIcon) {
+            return this.mMarker.getIntrinsicHeight() / 2;
+        }
+        return this.mMarker.getIntrinsicHeight();
     }
 
     /**
      * Get the current position of the marker in pixels
+     * @param projection Projection
+     * @param reuse PointF to reuse
      */
     public PointF getPositionOnScreen(final Projection projection, final PointF reuse) {
         return projection.toPixels(mCurMapCoords, reuse);
@@ -501,7 +526,12 @@ public class Marker {
     public Marker setIcon(Icon aIcon) {
         this.icon = aIcon;
         icon.setMarker(this);
+        isUsingMakiIcon = true;
         return this;
+    }
+
+    public boolean isUsingMakiIcon() {
+        return isUsingMakiIcon;
     }
 
     public PointF getPositionOnMap() {

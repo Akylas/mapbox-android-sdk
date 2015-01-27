@@ -184,8 +184,12 @@ public abstract class ItemizedOverlay extends SafeDrawOverlay implements Overlay
     /**
      * Draws an item located at the provided screen coordinates to the canvas.
      *
-     * @param canvas what the item is drawn upon
-     * @param item the item to be drawn
+     * @param canvas what the item is drawn upon.
+     * @param item the item to be drawn.
+     * @param projection the projection to use.
+     * @param aMapOrientation
+     * @param mapBounds
+     * @param mapScale
      */
     protected void onDrawItem(ISafeCanvas canvas, final Marker item, final Projection projection,
             final float aMapOrientation, final RectF mapBounds, final float mapScale) {
@@ -226,8 +230,10 @@ public abstract class ItemizedOverlay extends SafeDrawOverlay implements Overlay
     protected boolean markerHitTest(final Marker pMarker, final Projection pProjection,
             final float pX, final float pY) {
         RectF rect = pMarker.getDrawingBounds(pProjection, null);
-        rect.bottom -=
-                rect.height() / 2; //a marker drawing bounds is twice the actual size of the marker
+        if (pMarker.isUsingMakiIcon()) {
+            //a marker drawing bounds is twice the actual size of the marker
+            rect.bottom -= rect.height() / 2;
+        }
         return rect.contains(pX, pY);
     }
 

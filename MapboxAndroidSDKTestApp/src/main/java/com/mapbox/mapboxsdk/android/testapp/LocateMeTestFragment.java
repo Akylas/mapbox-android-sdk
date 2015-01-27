@@ -2,6 +2,7 @@ package com.mapbox.mapboxsdk.android.testapp;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,12 @@ public class LocateMeTestFragment extends Fragment {
         mv.setUserLocationEnabled(true);
         mv.setUserLocationTrackingMode(UserLocationOverlay.TrackingMode.FOLLOW);
         mv.setUserLocationRequiredZoom(12);
+
+        Log.d("LocateMeTestFragment", String.format("isMapRotationEnabled?  = %s", mv.isMapRotationEnabled()));
+        if (!mv.isMapRotationEnabled()) {
+            mv.setMapRotationEnabled(true);
+            Log.d("LocateMeTestFragment", String.format("mapRotation wasn't enabled, now isMapRotationEnabled?  = %s", mv.isMapRotationEnabled()));
+        }
 
         return view;
     }
