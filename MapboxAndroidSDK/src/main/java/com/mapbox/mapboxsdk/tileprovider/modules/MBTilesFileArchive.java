@@ -39,14 +39,19 @@ public class MBTilesFileArchive implements IArchiveFile {
 
     @Override
     public InputStream getInputStream(final ITileLayer pTileSource, final MapTile pTile) {
+        return getInputStream(pTile.getX(), pTile.getY(), pTile.getX());
+    }
+    
+    @Override
+    public InputStream getInputStream(final int x, final int y, final int zoom) {
 
         try {
             InputStream ret = null;
             final String[] tile = { COL_TILES_TILE_DATA };
             final String[] xyz = {
-                    Integer.toString(pTile.getX()),
-                    Double.toString(Math.pow(2, pTile.getZ()) - pTile.getY() - 1),
-                    Integer.toString(pTile.getZ())
+                    Integer.toString(x),
+                    Double.toString(Math.pow(2, zoom) - y - 1),
+                    Integer.toString(zoom)
             };
 
             final Cursor cur = mDatabase.query(TABLE_TILES, tile,
@@ -61,7 +66,7 @@ public class MBTilesFileArchive implements IArchiveFile {
                 return ret;
             }
         } catch (final Throwable e) {
-            Log.e(TAG, "Error getting db stream: " + pTile, e);
+            Log.e(TAG, "Error getting db stream: ", e);
         }
 
         return null;

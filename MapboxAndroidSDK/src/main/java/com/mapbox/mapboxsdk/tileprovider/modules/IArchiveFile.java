@@ -13,4 +13,5 @@ public interface IArchiveFile {
      * tile
      */
     InputStream getInputStream(ITileLayer tileSource, MapTile tile);
+    InputStream getInputStream(int x, int y, int zoom);
 }
