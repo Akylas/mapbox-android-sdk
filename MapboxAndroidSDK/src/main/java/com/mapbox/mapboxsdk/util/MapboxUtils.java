@@ -2,6 +2,7 @@ package com.mapbox.mapboxsdk.util;
 
 import android.content.Context;
 import android.text.TextUtils;
+
 import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.constants.MathConstants;
@@ -13,6 +14,10 @@ public class MapboxUtils implements MapboxConstants {
 
     public static String getAccessToken() {
         return accessToken;
+    }
+    
+    public static boolean isUsingV4() {
+        return !TextUtils.isEmpty(accessToken);
     }
 
     public static void setAccessToken(String accessToken) {
