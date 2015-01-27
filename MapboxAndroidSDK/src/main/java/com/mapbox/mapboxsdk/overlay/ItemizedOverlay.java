@@ -229,11 +229,7 @@ public abstract class ItemizedOverlay extends SafeDrawOverlay implements Overlay
 
     protected boolean markerHitTest(final Marker pMarker, final Projection pProjection,
             final float pX, final float pY) {
-        RectF rect = pMarker.getDrawingBounds(pProjection, null);
-        if (pMarker.isUsingMakiIcon()) {
-            //a marker drawing bounds is twice the actual size of the marker
-            rect.bottom -= rect.height() / 2;
-        }
+        RectF rect = pMarker.getHitBounds(pProjection, null);
         return rect.contains(pX, pY);
     }
 

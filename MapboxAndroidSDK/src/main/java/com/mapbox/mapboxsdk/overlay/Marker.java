@@ -6,10 +6,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
-import android.util.Log;
-import com.mapbox.mapboxsdk.R;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.util.Utils;
 import com.mapbox.mapboxsdk.views.InfoWindow;
 import com.mapbox.mapboxsdk.views.MapView;
 import com.mapbox.mapboxsdk.views.util.Projection;
@@ -22,7 +19,6 @@ public class Marker {
     public static final int ITEM_STATE_PRESSED_MASK = 1;
     public static final int ITEM_STATE_SELECTED_MASK = 2;
 
-    private int group = 0;
     private boolean mClustered;
 
     private final RectF mMyLocationRect = new RectF(0, 0, 0, 0);
@@ -334,16 +330,16 @@ public class Marker {
 
     public Point getAnchor() {
         if (mAnchor != null) {
-            int markerWidth = getWidth(), markerHeight = getHeight() *2;
+            int markerWidth = getWidth(), markerHeight = getRealHeight();
             return new Point((int) (-mAnchor.x * markerWidth), (int) (-mAnchor.y * markerHeight));
         }
         return new Point(0, 0);
     }
 
-    public Point getAnchor(HotspotPlace place) {
-        int markerWidth = getWidth(), markerHeight = getHeight();
-        return getHotspot(place, markerWidth, markerHeight);
-    }
+//    public Point getAnchor(HotspotPlace place) {
+//        int markerWidth = getWidth(), markerHeight = getHeight();
+//        return getHotspot(place, markerWidth, markerHeight);
+//    }
 
     public void setAnchor(final PointF anchor) {
         this.mAnchor = anchor;
@@ -378,9 +374,14 @@ public class Marker {
     }
 
     public int getHeight() {
+        int result = getRealHeight();
         if (isUsingMakiIcon) {
-            return this.mMarker.getIntrinsicHeight() / 2;
+            result /= 2;
         }
+        return result;
+    }
+    
+    public int getRealHeight() {
         return this.mMarker.getIntrinsicHeight();
     }
 
@@ -406,18 +407,26 @@ public class Marker {
         reuse.offset(point.x, point.y);
         return reuse;
     }
-
-    protected RectF getDrawingBounds(final Projection projection, RectF reuse) {
+    
+    protected RectF getBounds(final Projection projection, final boolean realSize, RectF reuse) {
         if (reuse == null) {
             reuse = new RectF();
         }
         final PointF position = getPositionOnScreen(projection, null);
         final int w = getWidth();
-        final int h = 2*getHeight();
+        final int h = realSize?getRealHeight():getHeight();
         final float x = position.x - mAnchor.x * w;
         final float y = position.y - mAnchor.y * h;
         reuse.set(x, y, x + w, y + h);
         return reuse;
+    }
+
+    protected RectF getScreenDrawingBounds(final Projection projection, RectF reuse) {
+        return getBounds(projection, true, reuse);
+    }
+    
+    protected RectF getHitBounds(final Projection projection, RectF reuse) {
+        return getBounds(projection, false, reuse);
     }
 
     protected RectF internalGetMapDrawingBounds(final Projection projection, RectF reuse) {
@@ -426,10 +435,9 @@ public class Marker {
         }
         projection.toMapPixels(mLatLng, mCurMapCoords);
         final int w = getWidth();
-        final int h = getHeight();
         final float x = mCurMapCoords.x - mAnchor.x * w;
-        final float y = mCurMapCoords.y - mAnchor.y * h;
-        reuse.set(x, y, x + w, y + h * 2);
+        final float y = mCurMapCoords.y - mAnchor.y * getHeight();
+        reuse.set(x, y, x + w, y + getRealHeight());
         return reuse;
     }
     
@@ -504,7 +512,7 @@ public class Marker {
      * and centers the map view on the item if panIntoView is true. <br>
      */
     public void showInfoWindow(InfoWindow infoWindow, MapView aMapView, boolean panIntoView) {
-        int markerWidth = getWidth(), markerHeight = getHeight()*2;
+        int markerWidth = getWidth(), markerHeight = getRealHeight();
         PointF infoAnchor = infoWindow.getAnchor();
         if (infoAnchor == null) {
             infoAnchor = aMapView.getDefaultInfoWindowAnchor();
