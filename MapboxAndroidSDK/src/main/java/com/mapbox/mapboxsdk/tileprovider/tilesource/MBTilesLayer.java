@@ -24,7 +24,7 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 public class MBTilesLayer extends TileLayer implements MapViewConstants, MapboxConstants {
 
     private static final String TAG = "MBTilesLayer";
-    MBTilesFileArchive mbTilesFileArchive;
+    protected MBTilesFileArchive mbTilesFileArchive;
 
     /**
      * Initialize a new tile layer, represented by a MBTiles file.
