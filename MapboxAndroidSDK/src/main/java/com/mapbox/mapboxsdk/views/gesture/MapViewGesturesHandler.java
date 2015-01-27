@@ -1,6 +1,7 @@
 package com.mapbox.mapboxsdk.views.gesture;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -15,6 +16,8 @@ import com.mapbox.mapboxsdk.views.MapView;
 
 public class MapViewGesturesHandler {
 
+    private static final boolean KITKAT_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT);
+    
     private final GestureDetector mGestureDetector;
     protected final ScaleGestureDetector mScaleGestureDetector;
     protected final RotateGestureDetector mRotateGestureDetector;
@@ -265,7 +268,9 @@ public class MapViewGesturesHandler {
 
                     }
                 });
-        this.mScaleGestureDetector.setQuickScaleEnabled(false);
+        if (KITKAT_OR_GREATER) {
+            this.mScaleGestureDetector.setQuickScaleEnabled(false);
+        }
         this.mRotateGestureDetector =
                 new RotateGestureDetector(context, new RotateGestureDetector.OnRotateGestureListener() {
                     private float firstAngle; //starting angle
