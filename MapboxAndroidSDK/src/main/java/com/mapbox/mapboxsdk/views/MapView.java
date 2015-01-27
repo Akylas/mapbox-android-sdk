@@ -4,17 +4,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
@@ -60,7 +55,6 @@ import com.mapbox.mapboxsdk.util.GeometryMath;
 import com.mapbox.mapboxsdk.util.NetworkUtils;
 import com.mapbox.mapboxsdk.util.constants.UtilConstants;
 import com.mapbox.mapboxsdk.views.gesture.MapViewGesturesHandler;
-import com.mapbox.mapboxsdk.views.safecanvas.SafePaint;
 import com.mapbox.mapboxsdk.views.util.OnMapOrientationChangeListener;
 import com.mapbox.mapboxsdk.views.util.Projection;
 import com.mapbox.mapboxsdk.views.util.TileLoadedListener;
@@ -905,7 +899,6 @@ public class MapView extends FrameLayout implements MapViewConstants,
         if (getMeasuredWidth() == 0 || getMeasuredHeight() == 0) {
             return null;
         }
-        Log.w(TAG, "getBoundingBoxInternal" + mZoomLevel);
         final RectF screenRect = GeometryMath
                 .viewPortRect(getProjection(), null);
         ILatLng neGeoPoint = Projection.pixelXYToLatLong(screenRect.right,
@@ -1111,7 +1104,6 @@ public class MapView extends FrameLayout implements MapViewConstants,
 
         if (newZoomLevel != curZoomLevel) {
             if (mOnCameraChangeListener != null) {
-                Log.w(TAG, "onCameraChange" + mZoomLevel);
                 mOnCameraChangeListener.onCameraChange(getBoundingBox(),
                         mZoomLevel);
             }
