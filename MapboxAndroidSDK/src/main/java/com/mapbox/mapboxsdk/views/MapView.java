@@ -17,6 +17,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -1124,8 +1125,19 @@ public class MapView extends FrameLayout implements MapViewConstants,
         }
 
         // Allows any views fixed to a Location in the MapView to adjust
-        this.requestLayout();
-        this.invalidate();
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            this.requestLayout();
+            this.invalidate();
+        } else {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    MapView.this.requestLayout();
+                    MapView.this.invalidate();
+                }
+            });
+        }
+
         return this;
     }
 
