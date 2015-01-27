@@ -18,7 +18,7 @@ public class OfflineMapTileProvider extends MapTileLayerBase {
     private OfflineMapDatabase offlineMapDatabase = null;
 
     public OfflineMapTileProvider(Context context, OfflineMapDatabase offlineMapDatabase) {
-        super(context, null);
+        super(context, null, null);
         this.offlineMapDatabase = offlineMapDatabase;
     }
 
