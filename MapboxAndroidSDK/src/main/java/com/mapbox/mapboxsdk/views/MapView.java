@@ -1330,7 +1330,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
      * Get the minimum allowed zoom level for the maps.
      */
     public float getMinZoomLevel() {
-        return Math.max(mMinimumZoomLevel, 0);
+        return mMinimumZoomLevel;
     }
 
     /**
@@ -1345,7 +1345,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
      * level from the tile provider.
      */
     public void setMinZoomLevel(float zoomLevel) {
-        mRequestedMinimumZoomLevel = mMinimumZoomLevel = zoomLevel;
+        mRequestedMinimumZoomLevel = mMinimumZoomLevel = Math.max(zoomLevel, 0);
         updateMinZoomLevel();
     }
 
