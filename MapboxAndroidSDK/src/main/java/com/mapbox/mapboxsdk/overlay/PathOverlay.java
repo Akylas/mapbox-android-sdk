@@ -28,6 +28,7 @@ public class PathOverlay extends Overlay {
      * Stores points, converted to the map projection.
      */
     private ArrayList<PointF> mPoints = new ArrayList<PointF>();
+    private int mSize = 0;
 
     /**
      * Number of points that have precomputed values.
@@ -81,6 +82,7 @@ public class PathOverlay extends Overlay {
     public void clearPath() {
         synchronized (this.mPoints) {
             this.mPointsPrecomputed = 0;
+            this.mSize = 0;
             this.mPoints = new ArrayList<PointF>();
         }
     }
@@ -91,6 +93,7 @@ public class PathOverlay extends Overlay {
 
     public void addPoint(final double aLatitude, final double aLongitude) {
         mPoints.add(new PointF((float) aLatitude, (float) aLongitude));
+        mSize += 1;
     }
 
     public void addPoints(final LatLng... aPoints) {
@@ -106,11 +109,11 @@ public class PathOverlay extends Overlay {
     }
 
     public void removeAllPoints() {
-        mPoints.clear();
+        clearPath();
     }
 
     public int getNumberOfPoints() {
-        return this.mPoints.size();
+        return mSize;
     }
 
     /**
@@ -120,10 +123,6 @@ public class PathOverlay extends Overlay {
     @Override
     protected void draw(final Canvas canvas, final MapView mapView) {
 
-        int size = 0;
-        synchronized (this.mPoints) {
-            size = this.mPoints.size();
-        }
         // nothing to paint
         if (mSize < 2) {
             return;
@@ -133,7 +132,7 @@ public class PathOverlay extends Overlay {
         boolean needsDrawing = false;
         // precompute new points to the intermediate projection.
         synchronized (this.mPoints) {
-            for (; this.mPointsPrecomputed < size; this.mPointsPrecomputed++) {
+            for (; this.mPointsPrecomputed < mSize; this.mPointsPrecomputed++) {
                 final PointF pt = this.mPoints.get(this.mPointsPrecomputed);
                 pj.toMapPixelsProjected((double) pt.x, (double) pt.y, pt);
             }
@@ -149,11 +148,11 @@ public class PathOverlay extends Overlay {
 
             mPath.rewind();
             needsDrawing = !mOptimizePath;
-            projectedPoint0 = this.mPoints.get(size - 1);
+            projectedPoint0 = this.mPoints.get(mSize - 1);
             mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y, (int) projectedPoint0.x,
                     (int) projectedPoint0.y);
 
-            for (int i = size - 2; i >= 0; i--) {
+            for (int i = mSize - 2; i >= 0; i--) {
                 // compute next points
                 projectedPoint1 = this.mPoints.get(i);
 
