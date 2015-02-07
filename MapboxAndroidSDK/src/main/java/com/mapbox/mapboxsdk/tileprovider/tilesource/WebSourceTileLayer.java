@@ -141,8 +141,8 @@ public class WebSourceTileLayer extends TileLayer {
             }
 
             return result;
-        } else {
-            Log.d(TAG, "Skipping tile " + aTile.toString() + " due to NetworkAvailabilityCheck.");
+//        } else {
+//            Log.d(TAG, "Skipping tile " + aTile.toString() + " due to NetworkAvailabilityCheck.");
         }
         return null;
     }
