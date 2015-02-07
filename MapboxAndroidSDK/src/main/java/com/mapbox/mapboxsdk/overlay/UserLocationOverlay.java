@@ -6,10 +6,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Paint.Style;
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.location.Location;
 import android.view.MotionEvent;
+
 import com.mapbox.mapboxsdk.R;
 import com.mapbox.mapboxsdk.events.MapListener;
 import com.mapbox.mapboxsdk.events.RotateEvent;
@@ -24,6 +24,7 @@ import com.mapbox.mapboxsdk.views.MapView;
 import com.mapbox.mapboxsdk.views.safecanvas.ISafeCanvas;
 import com.mapbox.mapboxsdk.views.safecanvas.SafePaint;
 import com.mapbox.mapboxsdk.views.util.Projection;
+
 import java.util.LinkedList;
 
 /**
@@ -194,29 +195,16 @@ public class UserLocationOverlay extends SafeDrawOverlay implements Snappable, M
             canvas.drawText("Alt: " + lastFix.getAltitude(), tx, ty + 35, mPaint);
             canvas.drawText("Acc: " + lastFix.getAccuracy(), tx, ty + 50, mPaint);
         }
-
+        float rotate = -mMapView.getMapOrientation();
+        Bitmap bitmap = mPersonBitmap;
+        PointF anchor = mPersonHotspot;
         if (lastFix.hasBearing()) {
-            canvas.save();
-            // Rotate the icon
-            canvas.rotate(lastFix.getBearing(), mMapCoords.x, mMapCoords.y);
-            // Draw the bitmap
-            canvas.translate(-mDirectionArrowBitmap.getWidth() * mDirectionHotspot.x,
-                    -mDirectionArrowBitmap.getHeight() * mDirectionHotspot.y);
+            rotate -=lastFix.getBearing();
+            bitmap = mDirectionArrowBitmap;
+            anchor = mDirectionHotspot;
 
-            canvas.drawBitmap(mDirectionArrowBitmap, mMapCoords.x, mMapCoords.y, mPaint);
-            canvas.restore();
-        } else {
-            canvas.save();
-            // Unrotate the icon if the maps are rotated so the little man stays upright
-            canvas.rotate(-mMapView.getMapOrientation(), mMapCoords.x, mMapCoords.y);
-            // Counteract any scaling that may be happening so the icon stays the same size
-            canvas.translate(-mPersonBitmap.getWidth() * mPersonHotspot.x,
-                    -mPersonBitmap.getHeight() * mPersonHotspot.y);
-            // Draw the bitmap
-            canvas.drawBitmap(mPersonBitmap, mMapCoords.x, mMapCoords.y, mPaint);
-            canvas.restore();
         }
-        canvas.restore();
+        Overlay.drawAt(canvas, bitmap, mPaint, mMapCoords, new PointF(-bitmap.getWidth() * anchor.x, -bitmap.getHeight() * anchor.y), rotate);
     }
 
     public PointF getPositionOnScreen(final Projection projection, PointF reuse) {

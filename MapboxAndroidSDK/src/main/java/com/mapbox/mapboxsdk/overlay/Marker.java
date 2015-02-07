@@ -1,6 +1,7 @@
 package com.mapbox.mapboxsdk.overlay;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -9,6 +10,7 @@ import android.text.TextUtils;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.views.InfoWindow;
 import com.mapbox.mapboxsdk.views.MapView;
+import com.mapbox.mapboxsdk.views.safecanvas.ISafeCanvas;
 import com.mapbox.mapboxsdk.views.util.Projection;
 
 /**
@@ -49,9 +51,11 @@ public class Marker {
 
     private boolean mAnimated = true;
     private boolean mDraggable = false;
+    private boolean mVisible = true;
 
     private float mMinZoom = 0;
     private float mMaxZoom = 22;
+    private float mHeading = 0;
 
     /**
      * Construct a new Marker, given title, description, and place
@@ -123,7 +127,6 @@ public class Marker {
 
     /**
      * Get this marker's tooltip, creating it if it doesn't exist yet.
-     * @param mv MapView
      * @return InfoWindow
      */
     public InfoWindow getInfoWindow() {
@@ -148,6 +151,29 @@ public class Marker {
         if (mParentHolder != null) {
             mParentHolder.blurItem(this);
         }
+    }
+
+    protected void draw(ISafeCanvas canvas,
+                        final float aBearing,
+                        final float mapScale,
+                        final boolean focused) {
+        if (!shouldDraw()) {
+            return;
+        }
+        canvas.save();
+
+        final int state = focused ? Marker.ITEM_STATE_FOCUSED_MASK : 0;
+        final Drawable marker = getMarker(state);
+        if (marker == null) {
+            return;
+        }
+        final PointF position = getPositionOnMap();
+
+        canvas.scale(mapScale, mapScale, position.x, position.y);
+        // draw it
+        Overlay.drawAt(canvas, marker, position, getAnchor(), aBearing - mHeading);
+
+        canvas.restore();
     }
 
     /**
@@ -201,6 +227,17 @@ public class Marker {
     public void setRelatedObject(Object o) {
         mRelatedObject = o;
     }
+    
+    public void setVisible(final boolean visible) {
+        mVisible = visible;
+        invalidate();
+    }
+
+    public void setHeading(final float heading) {
+        mHeading = heading;
+        invalidate();
+    }
+
 
     /**
      * Set the centerpoint of this marker in geographical coordinates
@@ -328,12 +365,12 @@ public class Marker {
         invalidate();
     }
 
-    public Point getAnchor() {
+    public PointF getAnchor() {
         if (mAnchor != null) {
             int markerWidth = getWidth(), markerHeight = getRealHeight();
-            return new Point((int) (-mAnchor.x * markerWidth), (int) (-mAnchor.y * markerHeight));
+            return new PointF(-mAnchor.x * markerWidth, -mAnchor.y * markerHeight);
         }
-        return new Point(0, 0);
+        return new PointF(0, 0);
     }
 
 //    public Point getAnchor(HotspotPlace place) {
@@ -403,7 +440,7 @@ public class Marker {
 
     public PointF getDrawingPositionOnScreen(final Projection projection, PointF reuse) {
         reuse = getPositionOnScreen(projection, reuse);
-        Point point = getAnchor();
+        PointF point = getAnchor();
         reuse.offset(point.x, point.y);
         return reuse;
     }
@@ -554,14 +591,13 @@ public class Marker {
     }
 
     public boolean shouldDraw() {
-        if (mapView == null) {
+        if (mapView == null || mVisible == false) {
             return false;
         }
         if (bubbleShowing) {
             return true;
         }
-        float zoomDelta = (float) (Math.log(mapView.getScale()) / Math.log(2d));
-        float zoom = mapView.getZoomLevel(false) + zoomDelta;
+        float zoom = mapView.getCurrentZoomLevel();
         return zoom > mMinZoom && zoom < mMaxZoom;
     }
 
