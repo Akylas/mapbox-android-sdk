@@ -1,11 +1,11 @@
-// Created by plusminus on 20:32:01 - 27.09.2008
 package com.mapbox.mapboxsdk.overlay;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.KeyEvent;
@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p/>
  * This class implements a form of Gesture Handling similar to
  * {@link android.view.GestureDetector.SimpleOnGestureListener} and
- * {@link GestureDetector.OnGestureListener}. The difference is there is an additional argument for
+ * {@link android.view.GestureDetector.OnGestureListener}. The difference is there is an additional argument for
  * the item.
  *
  * @author Nicolas Gramlich
@@ -259,18 +259,20 @@ public abstract class Overlay {
     protected static synchronized void drawAt(final ISafeCanvas canvas, final Drawable drawable,
             final PointF origin, final PointF offset,
             final float aMapOrientation) {
-//        ISafeCanvas canvas2 = (ISafeCanvas) canvas;
         canvas.save();
         canvas.rotate(-aMapOrientation, origin.x, origin.y);
         canvas.translate(origin.x + offset.x, origin.y + offset.y);
-        drawable.draw(canvas);
-//        SafePaint paint = new SafePaint();
-//        paint.setColor(Color.RED);
-//        paint.setStyle(Paint.Style.STROKE);
-//        paint.setStrokeWidth(3);
-//        canvas2.drawLine(-offset.x, -offset.y-9, -offset.x, -offset.y+9, paint);
-//        canvas2.drawLine(-offset.x-9, -offset.y, -offset.x+9, -offset.y, paint);
-//        canvas2.drawRect(drawable.getBounds(), paint);
+        drawable.draw(canvas.getSafeCanvas());
+        canvas.restore();
+    }
+    
+    protected static synchronized void drawAt(final ISafeCanvas canvas, final Bitmap bitmap, final SafePaint paint,
+            final PointF origin, final PointF offset,
+            final float aMapOrientation) {
+        canvas.save();
+        canvas.rotate(-aMapOrientation, origin.x, origin.y);
+        canvas.translate(offset.x, offset.y);
+        canvas.drawBitmap(bitmap, origin.x, origin.y, paint);
         canvas.restore();
     }
     
