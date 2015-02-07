@@ -220,6 +220,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
      * Current zoom level for map tiles.
      */
     private float mZoomLevel = 11;
+    private float mCurrentRealZoomLevel = 0;
     protected float mRequestedMinimumZoomLevel = 0;
     private float mMinimumZoomLevel = 0;
     private float mMaximumZoomLevel = 22;
@@ -1002,11 +1003,12 @@ public class MapView extends FrameLayout implements MapViewConstants,
         this.mController.panBy(x, y);
         return this;
     }
-
+    
     public MapView setScale(float scale) {
         float zoomDelta = (float) (Math.log(scale) / Math.log(2d));
         float newZoom = mZoomLevel + zoomDelta;
         if (newZoom <= mMaximumZoomLevel && newZoom >= mMinimumZoomLevel) {
+            mCurrentRealZoomLevel = newZoom;
             mProjection.setScale(scale);
             invalidate();
         }
@@ -1059,6 +1061,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
             mScroller.forceFinished(true);
             updateScrollableAreaLimit();
         }
+        mCurrentRealZoomLevel = this.mZoomLevel;
 
         if (center != null) {
             // we cant use the mProjection because the values are not the right
@@ -1324,6 +1327,10 @@ public class MapView extends FrameLayout implements MapViewConstants,
         } else {
             return mZoomLevel;
         }
+    }
+    
+    public float getCurrentZoomLevel() {
+        return mCurrentRealZoomLevel;
     }
 
     /**
