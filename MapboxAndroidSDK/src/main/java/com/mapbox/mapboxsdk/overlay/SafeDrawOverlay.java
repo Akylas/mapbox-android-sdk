@@ -22,15 +22,14 @@ public abstract class SafeDrawOverlay extends Overlay {
     private static final Matrix sMatrix = new Matrix();
     private boolean mUseSafeCanvas = true;
 
-    protected abstract void drawSafe(final ISafeCanvas c, final MapView mapView,
-            final boolean shadow);
+    protected abstract void drawSafe(final ISafeCanvas c, final MapView mapView);
 
     public SafeDrawOverlay() {
         super();
     }
 
     @Override
-    protected void draw(final Canvas c, final MapView mapView, final boolean shadow) {
+    protected void draw(final Canvas c, final MapView mapView) {
 
         sSafeCanvas.setCanvas(c);
 
@@ -71,7 +70,7 @@ public abstract class SafeDrawOverlay extends Overlay {
             sSafeCanvas.yOffset = 0;
         }
 
-        this.drawSafe(sSafeCanvas, mapView, shadow);
+        this.drawSafe(sSafeCanvas, mapView);
 
         if (this.mUseSafeCanvas) {
             c.restore();

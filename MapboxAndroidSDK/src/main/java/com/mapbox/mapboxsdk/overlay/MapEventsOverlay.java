@@ -30,7 +30,7 @@ public class MapEventsOverlay extends Overlay {
     }
 
     @Override
-    protected void draw(Canvas c, MapView osmv, boolean shadow) {
+    protected void draw(Canvas c, MapView osmv) {
         //Nothing to draw
     }
 

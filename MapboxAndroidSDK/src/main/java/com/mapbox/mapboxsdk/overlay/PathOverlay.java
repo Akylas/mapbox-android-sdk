@@ -118,14 +118,14 @@ public class PathOverlay extends Overlay {
      * Should be fine up to 10K points.
      */
     @Override
-    protected void draw(final Canvas canvas, final MapView mapView, final boolean shadow) {
+    protected void draw(final Canvas canvas, final MapView mapView) {
 
         int size = 0;
         synchronized (this.mPoints) {
             size = this.mPoints.size();
         }
         // nothing to paint
-        if (shadow || size < 2) {
+        if (mSize < 2) {
             return;
         }
 

@@ -325,11 +325,7 @@ public class UserLocationOverlay extends SafeDrawOverlay implements Snappable, M
     }
 
     @Override
-    protected void drawSafe(ISafeCanvas canvas, MapView mapView, boolean shadow) {
-        if (shadow) {
-            return;
-        }
-
+    protected void drawSafe(ISafeCanvas canvas, MapView mapView) {
         if (mLocation != null && isMyLocationEnabled()) {
             drawMyLocation(canvas, mapView, mLocation);
         }

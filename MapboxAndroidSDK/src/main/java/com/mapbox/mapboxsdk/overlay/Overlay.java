@@ -109,11 +109,10 @@ public abstract class Overlay {
 
 
     /**
-     * Draw the overlay over the map. This will be called on all active overlays with shadow=true,
-     * to lay down the shadow layer, and then again on all overlays with shadow=false. Callers
+     * Draw the overlay over the map. Callers
      * should check isEnabled() before calling draw(). By default, draws nothing.
      */
-    protected abstract void draw(final Canvas c, final MapView osmv, final boolean shadow);
+    protected abstract void draw(final Canvas c, final MapView osmv);
 
     /**
      * Override to perform clean up of resources before shutdown. By default does nothing.
@@ -255,12 +254,10 @@ public abstract class Overlay {
      * Convenience method to draw a Drawable at an offset. x and y are pixel coordinates. You can
      * find appropriate coordinates from latitude/longitude using the MapView.getProjection()
      * method
-     * on the MapView passed to you in draw(Canvas, MapView, boolean).
-     *
-     * @param shadow If true, draw only the drawable's shadow. Otherwise, draw the drawable itself.
+     * on the MapView passed to you in draw(Canvas, MapView).
      */
-    protected static synchronized void drawAt(final Canvas canvas, final Drawable drawable,
-            final Point origin, final Point offset, final boolean shadow,
+    protected static synchronized void drawAt(final ISafeCanvas canvas, final Drawable drawable,
+            final PointF origin, final PointF offset,
             final float aMapOrientation) {
 //        ISafeCanvas canvas2 = (ISafeCanvas) canvas;
         canvas.save();

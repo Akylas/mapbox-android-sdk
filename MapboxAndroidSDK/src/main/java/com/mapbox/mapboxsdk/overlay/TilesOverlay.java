@@ -122,10 +122,7 @@ public class TilesOverlay extends SafeDrawOverlay {
     }
 
     @Override
-    protected void drawSafe(final ISafeCanvas c, final MapView mapView, final boolean shadow) {
-        if (shadow) {
-            return;
-        }
+    protected void drawSafe(final ISafeCanvas c, final MapView mapView) {
         //Commented for now. It needs heavy testing to see if we actually need it
         isAnimating = mapView.isAnimating();
 

@@ -114,14 +114,9 @@ public abstract class ItemizedOverlay extends SafeDrawOverlay implements Overlay
      * applied, so be sure to leave it the way you found it
      * @param mapView the MapView that requested the draw. Use MapView.getProjection() to convert
      * between on-screen pixels and latitude/longitude pairs
-     * @param shadow if true, draw the shadow layer. If false, draw the overlay contents.
      */
     @Override
-    protected void drawSafe(ISafeCanvas canvas, MapView mapView, boolean shadow) {
-
-        if (shadow) {
-            return;
-        }
+    protected void drawSafe(ISafeCanvas canvas, MapView mapView) {
 
         if (mPendingFocusChangedEvent && mOnFocusChangeListener != null) {
             mOnFocusChangeListener.onFocusChanged(this, mFocusedItem);
