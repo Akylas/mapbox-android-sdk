@@ -316,10 +316,14 @@ public class Marker {
      * @param marker Drawable resource to be used as Marker image
      */
     public void setMarker(final Drawable marker) {
+        setMarker(marker, false);
+    }
+    
+    public void setMarker(final Drawable marker, final boolean isUsingMaki) {
         this.mMarker = marker;
         if (marker != null) {
             marker.setBounds(0, 0, marker.getIntrinsicWidth(), marker.getIntrinsicHeight());
-            isUsingMakiIcon = false;
+            isUsingMakiIcon = isUsingMaki;
         }
         invalidate();
     }
@@ -407,7 +411,10 @@ public class Marker {
      * Get the width of the marker, based on the width of the image backing it.
      */
     public int getWidth() {
-        return this.mMarker.getIntrinsicWidth();
+        if (mMarker != null) {
+            return this.mMarker.getIntrinsicWidth();
+        }
+        return 0;
     }
 
     public int getHeight() {
@@ -419,7 +426,10 @@ public class Marker {
     }
     
     public int getRealHeight() {
-        return this.mMarker.getIntrinsicHeight();
+        if (mMarker != null) {
+            return this.mMarker.getIntrinsicHeight();
+        }
+        return 0;
     }
 
     /**

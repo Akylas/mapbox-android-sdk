@@ -166,14 +166,13 @@ If you're interested in running the TestApp yourself (which is also highly recom
 ### Including SDK JavaDoc
 
 JavaDocs are automatically generated and distributed with each official and
-SNAPSHOT release.  They can be downloaded from Maven Central for local
-viewing and / or integration with an IDE.
+SNAPSHOT release.  The can be downloaded from The Central Repository  [official](http://search.maven.org/#search|ga|1|mapbox) or [SNAPSHOT](https://oss.sonatype.org/content/repositories/snapshots/com/mapbox/mapboxsdk/mapbox-android-sdk/) for local viewing and / or integration with an IDE.
 
 ### Generating SDK Documentation (aka JavaDoc)
 
 ```
 cd <PROJECT_HOME>/MapboxAndroidSDK/
-../gradlew clean assembleRelease generatereleaseJavadoc
-cd build/docs/javadoc
+../gradlew clean assembleRelease javadocrelease
+cd build/docs/javadoc/release/
 open index.html
 ```

@@ -10,13 +10,11 @@ public interface MapboxConstants {
     /**
      * The default base endpoint of Mapbox services.
      */
-    public static final String MAPBOX_BASE_URL_V3 = "https://a.tiles.mapbox.com/v3/";
     public static final String MAPBOX_BASE_URL_V4 = "https://a.tiles.mapbox.com/v4/";
-    public static final String MAPBOX_BRANDED_JSON_URL_V3 = "http%s://api.tiles.mapbox.com/v3/%s.json%s";
-    public static final String MAPBOX_BRANDED_JSON_URL_V4 = "http%s://api.tiles.mapbox.com/v4/%s.json?access_token=%s%s";
+    public static final String MAPBOX_BRANDED_JSON_URL_V4 = MAPBOX_BASE_URL_V4 + "%s.json?access_token=%s&secure=1";
     
 
-    public static final String USER_AGENT = "Mapbox Android SDK/0.6.0";
+    public static final String USER_AGENT = "Mapbox Android SDK/0.7.0";
 
     public static final Locale MAPBOX_LOCALE = Locale.US;
 

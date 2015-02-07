@@ -2,17 +2,27 @@ package com.mapbox.mapboxsdk.util;
 
 import android.content.Context;
 import android.text.TextUtils;
-
+import android.util.Log;
+import com.mapbox.mapboxsdk.R;
 import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.constants.MathConstants;
+import com.mapbox.mapboxsdk.exceptions.MissingTokenException;
 
 public class MapboxUtils implements MapboxConstants {
 
-    // Access Token For V4 of API.  If it doesn't exist, SDK will fall back to use V3
+    private static final String TAG = "MapboxUtils";
+
+    // Access Token For V4 of API.  If it doesn't exist an exception will be thrown
     private static String accessToken = null;
 
+    private static Context context = null;
+
     public static String getAccessToken() {
+        if (TextUtils.isEmpty(accessToken)) {
+            Log.e(TAG, "Missing Token", new MissingTokenException());
+            return null;
+        }
         return accessToken;
     }
     
@@ -22,6 +32,18 @@ public class MapboxUtils implements MapboxConstants {
 
     public static void setAccessToken(String accessToken) {
         MapboxUtils.accessToken = accessToken;
+    }
+
+    public static String getUserAgent() {
+        if (context == null) {
+            return MapboxConstants.USER_AGENT;
+        }
+        StringBuffer sb = new StringBuffer("Mapbox Android SDK");
+
+        sb.append("/");
+        sb.append(context.getString(R.string.mapboxAndroidSDKVersion));
+
+        return sb.toString();
     }
 
     public static String qualityExtensionForImageQuality(RasterImageQuality imageQuality) {
@@ -78,25 +100,18 @@ public class MapboxUtils implements MapboxConstants {
 
         marker.append(color.replaceAll("#", ""));
 
-        if (AppUtils.isRunningOn2xOrGreaterScreen(context)) {
-            marker.append("@2x");
-        }
+//        if (AppUtils.isRunningOn2xOrGreaterScreen(context)) {
+//            marker.append("@2x");
+//        }
         marker.append(".png");
 
-        if (!TextUtils.isEmpty(MapboxUtils.getAccessToken())) {
-            marker.append("?access_token=");
-            marker.append(MapboxUtils.getAccessToken());
-            return String.format(MapboxConstants.MAPBOX_BASE_URL_V4 + "marker/%s", marker);
-        }
-
-        return String.format(MapboxConstants.MAPBOX_BASE_URL_V3 + "marker/%s", marker);
+        marker.append("?access_token=");
+        marker.append(MapboxUtils.getAccessToken());
+        return String.format(MAPBOX_LOCALE, MapboxConstants.MAPBOX_BASE_URL_V4 + "marker/%s", marker);
     }
 
     public static String getMapTileURL(Context context, String mapID, int zoom, int x, int y, RasterImageQuality imageQuality) {
-        if (!TextUtils.isEmpty(MapboxUtils.getAccessToken())) {
-            return String.format(MAPBOX_BASE_URL_V4 + "%s/%d/%d/%d%s.%s?access_token=%s", mapID, zoom, x, y, (AppUtils.isRunningOn2xOrGreaterScreen(context) ? "@2x" : ""), MapboxUtils.qualityExtensionForImageQuality(imageQuality), MapboxUtils.getAccessToken());
-        }
-        return String.format(MAPBOX_BASE_URL_V3 + "%s/%d/%d/%d%s.%s", mapID, zoom, x, y, (AppUtils.isRunningOn2xOrGreaterScreen(context) ? "@2x" : ""), MapboxUtils.qualityExtensionForImageQuality(imageQuality));
+        return String.format(MAPBOX_LOCALE, MAPBOX_BASE_URL_V4 + "%s/%d/%d/%d%s.%s?access_token=%s", mapID, zoom, x, y, (AppUtils.isRunningOn2xOrGreaterScreen(context) ? "@2x" : ""), MapboxUtils.qualityExtensionForImageQuality(imageQuality), MapboxUtils.getAccessToken());
     }
 
     /**

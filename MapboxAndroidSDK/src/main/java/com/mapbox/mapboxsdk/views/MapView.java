@@ -325,7 +325,9 @@ public class MapView extends FrameLayout implements MapViewConstants,
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.MapView);
         String mapid = a.getString(R.styleable.MapView_mapid);
-        MapboxUtils.setAccessToken(a.getString(R.styleable.MapView_accessToken));
+        if (a.hasValue(R.styleable.MapView_accessToken)) {
+            MapboxUtils.setAccessToken(a.getString(R.styleable.MapView_accessToken));
+        }
         if (!TextUtils.isEmpty(mapid)) {
             setTileSource(new MapboxTileLayer(mapid));
         } else {
@@ -433,9 +435,17 @@ public class MapView extends FrameLayout implements MapViewConstants,
     }
 
     /**
-     * Set the tile source of this map as an array of tile layers, which will be
-     * presented on top of each other.
-     * 
+     * Set Mapbox Access Token for this MapView.
+     * @see <a href="https://www.mapbox.com/developers/api/#access-tokens">https://www.mapbox.com/developers/api/#access-tokens</a>
+     * @param accessToken String
+     */
+    public void setAccessToken(final String accessToken) {
+        MapboxUtils.setAccessToken(accessToken);
+    }
+
+    /**
+     * Set the tile source of this map as an array of tile layers,
+     * which will be presented on top of each other.
      * @param value
      */
     public void setTileSource(final ITileLayer[] value) {
@@ -1563,7 +1573,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
 
     /**
      * Gets the mapView onMapOrientationChangeListener
-     * @Param l the onMapOrientationChangeListener
+     * @param l the onMapOrientationChangeListener
      */
     public void setOnMapOrientationChangeListener(OnMapOrientationChangeListener l) {
         this.mOnMapOrientationChangeListener = l;
@@ -2099,7 +2109,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
     }
 
     /**
-     * Set the user location tracking mode
+     * Set the user location tracking zoom level
      */
     public MapView setUserLocationRequiredZoom(final float zoomLevel) {
         getOrCreateLocationOverlay().setRequiredZoom(zoomLevel);
