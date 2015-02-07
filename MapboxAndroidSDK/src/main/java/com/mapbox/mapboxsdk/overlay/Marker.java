@@ -541,6 +541,9 @@ public class Marker {
     public boolean isUsingMakiIcon() {
         return isUsingMakiIcon;
     }
+    public void setUsingMakiIcon(final boolean value) {
+        isUsingMakiIcon = value;
+    }
 
     public PointF getPositionOnMap() {
         return mCurMapCoords;

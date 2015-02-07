@@ -269,6 +269,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
     private InfoWindow currentInfoWindow;
 
     private int mDefaultPinRes = R.drawable.defpin;
+    private boolean mDefaultPinIsMaki = true;
     private Drawable mDefaultPinDrawable;
     private PointF mDefaultPinAnchor = DEFAULT_PIN_ANCHOR;
 
@@ -2289,6 +2290,10 @@ public class MapView extends FrameLayout implements MapViewConstants,
     public void setDefaultPinRes(int res) {
         mDefaultPinRes = res;
     }
+    
+    public void setDefaultPinIsMaki(boolean value) {
+        mDefaultPinIsMaki = value;
+    }
 
     public void setDefaultPinDrawable(Drawable drawable) {
         mDefaultPinDrawable = drawable;
@@ -2303,7 +2308,10 @@ public class MapView extends FrameLayout implements MapViewConstants,
         }
         return mDefaultPinDrawable;
     }
-
+    
+    public boolean getDefaultPinIsMaki() {
+        return mDefaultPinIsMaki;
+    }
     public void setDefaultPinAnchor(PointF point) {
         mDefaultPinAnchor = point;
     }
