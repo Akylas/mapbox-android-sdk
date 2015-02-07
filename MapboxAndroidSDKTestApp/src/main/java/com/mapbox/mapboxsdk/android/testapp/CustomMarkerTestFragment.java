@@ -10,13 +10,14 @@ import com.mapbox.mapboxsdk.android.testapp.ui.CustomInfoWindow;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.Icon;
 import com.mapbox.mapboxsdk.overlay.Marker;
+import com.mapbox.mapboxsdk.views.InfoWindow;
 import com.mapbox.mapboxsdk.views.MapView;
 
 public class CustomMarkerTestFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_custommarkermap, container, false);
+        final View view = inflater.inflate(R.layout.fragment_custommarkermap, container, false);
 
         MapView mv = (MapView) view.findViewById(R.id.customMarkerMapView);
         mv.setCenter(new LatLng(-3.07881, 37.31369));
@@ -30,8 +31,12 @@ public class CustomMarkerTestFragment extends Fragment {
         capital.setIcon(new Icon(getActivity(), Icon.Size.LARGE, "town-hall", "FF0000"));
         mv.addMarker(capital);
 
-        Marker bigCity = new Marker(mv, "Dar es Salaam", "", new LatLng(-6.80610, 39.27046));
-        bigCity.setToolTip(new CustomInfoWindow(mv));
+        Marker bigCity = new Marker(mv, "Dar es Salaam", "", new LatLng(-6.80610, 39.27046)) {
+            @Override
+            protected InfoWindow createInfoWindow() {
+                return new CustomInfoWindow(context);
+            }
+        };
         mv.addMarker(bigCity);
 
         return view;
