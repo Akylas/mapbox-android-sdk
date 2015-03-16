@@ -264,6 +264,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
 
     private BoundingBox mBoundingBoxToZoomOn = null;
     private boolean mBoundingBoxToZoomOnRegionFit = false;
+    private boolean mBoundingBoxToZoomOnRoundedZoom = false;
 
     // for speed (avoiding allocations)
     protected final MapTileLayerBase mTileProvider;
@@ -1220,6 +1221,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
         if (!mLayedOut) {
             mBoundingBoxToZoomOn = inter;
             mBoundingBoxToZoomOnRegionFit = regionFit;
+            mBoundingBoxToZoomOnRoundedZoom = roundedZoom;
             return this;
         }
 
@@ -1626,7 +1628,6 @@ public class MapView extends FrameLayout implements MapViewConstants,
             setZoom(mMinimumZoomLevel);
         }
     }
-
     /**
      * Everytime we update the zoom or the view size we must re compute the real
      * scrollable area limit in pixels
@@ -1835,7 +1836,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
                 mController.mapViewLayedOut();
                 if (mBoundingBoxToZoomOn != null) {
                     zoomToBoundingBox(mBoundingBoxToZoomOn,
-                            mBoundingBoxToZoomOnRegionFit);
+                            mBoundingBoxToZoomOnRegionFit, false, mBoundingBoxToZoomOnRoundedZoom);
                     mBoundingBoxToZoomOn = null;
                 }
                 if (mLocationOverlay != null) {
