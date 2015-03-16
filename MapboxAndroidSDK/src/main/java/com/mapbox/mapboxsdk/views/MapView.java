@@ -221,7 +221,12 @@ public class MapView extends FrameLayout implements MapViewConstants,
      */
     private float mZoomLevel = 11;
     private float mCurrentRealZoomLevel = 0;
+    
+    
+    private boolean maxZoomLevelDefined = false;
+    private boolean minZoomLevelDefined = false;
     protected float mRequestedMinimumZoomLevel = 0;
+    protected float mRequestedMaximumZoomLevel = 22;
     private float mMinimumZoomLevel = 0;
     private float mMaximumZoomLevel = 22;
 
@@ -424,8 +429,15 @@ public class MapView extends FrameLayout implements MapViewConstants,
     private void updateAfterSourceChange() {
         Projection.setTileSize(mTileProvider.getTileSizePixels());
         this.setScrollableAreaLimit(mTileProvider.getBoundingBox());
-        this.setMinZoomLevel(mTileProvider.getMinimumZoomLevel());
-        this.setMaxZoomLevel(mTileProvider.getMaximumZoomLevel());
+        
+        if (!minZoomLevelDefined) {
+            mMinimumZoomLevel = Math.max(mTileProvider.getMinimumZoomLevel(), 0);
+            updateMinZoomLevel();
+        }
+        
+        if (!maxZoomLevelDefined) {
+            mMaximumZoomLevel = Math.max(mTileProvider.getMaximumZoomLevel(), 0);
+        }
         this.setZoom(mZoomLevel);
         if (!isLayedOut()) {
             return;
@@ -1362,6 +1374,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
      * level from the tile provider.
      */
     public void setMinZoomLevel(float zoomLevel) {
+        minZoomLevelDefined = true;
         mRequestedMinimumZoomLevel = mMinimumZoomLevel = Math.max(zoomLevel, 0);
         updateMinZoomLevel();
     }
@@ -1371,7 +1384,11 @@ public class MapView extends FrameLayout implements MapViewConstants,
      * level from the tile provider.
      */
     public void setMaxZoomLevel(float zoomLevel) {
-        mMaximumZoomLevel = zoomLevel;
+        maxZoomLevelDefined = true;
+        mRequestedMaximumZoomLevel = mMaximumZoomLevel = Math.max(zoomLevel, 0);
+        if (mZoomLevel > mMaximumZoomLevel) {
+            setZoom(mMaximumZoomLevel);
+        }
     }
 
     /**
