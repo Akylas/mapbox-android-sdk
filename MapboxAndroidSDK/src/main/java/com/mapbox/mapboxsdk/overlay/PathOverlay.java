@@ -29,12 +29,7 @@ public class PathOverlay extends Overlay {
      */
     private ArrayList<PointF> mPoints = new ArrayList<PointF>();
     private int mSize = 0;
-
-    /**
-     * Number of points that have precomputed values.
-     */
-    private int mPointsPrecomputed;
-
+    private MapView mapView = null;
 
     private boolean mOptimizePath = true;
 
@@ -81,30 +76,81 @@ public class PathOverlay extends Overlay {
 
     public void clearPath() {
         synchronized (this.mPoints) {
-            this.mPointsPrecomputed = 0;
+//            this.mPointsPrecomputed = 0;
             this.mSize = 0;
             this.mPoints = new ArrayList<PointF>();
         }
     }
 
-    public void addPoint(final LatLng aPoint) {
-        addPoint(aPoint.getLatitude(), aPoint.getLongitude());
+    public void setPoints(final LatLng... aPoints) {
+        //first we prepare the new Path as might be long 
+        ArrayList<PointF>  newPoints = new ArrayList<PointF>();
+        PointF lastpoint = null;
+        for (final LatLng point : aPoints) {
+            PointF newpoint = Projection.toMapPixelsProjected(point.getLatitude(), point.getLongitude(), null);
+            if (newpoint == null || 
+                    (lastpoint != null && (newpoint.x == lastpoint.x && newpoint.y == lastpoint.y))) {
+                continue;
+            }
+            lastpoint = newpoint;
+            newPoints.add(newpoint);
+        }
+        //now we can go!
+        synchronized (this.mPoints) {
+            this.mSize = newPoints.size();
+            this.mPoints = newPoints;
+        }
+    }
+    
+    public void setPoints(final List<LatLng> aPoints) {
+        //first we prepare the new Path as might be long 
+        ArrayList<PointF>  newPoints = new ArrayList<PointF>();
+        PointF lastpoint = null;
+        for (final LatLng point : aPoints) {
+            PointF newpoint = Projection.toMapPixelsProjected(point.getLatitude(), point.getLongitude(), null);
+            if (newpoint == null || 
+                    (lastpoint != null && (newpoint.x == lastpoint.x && newpoint.y == lastpoint.y))) {
+                continue;
+            }
+            lastpoint = newpoint;
+            newPoints.add(newpoint);
+        }
+        //now we can go!
+        synchronized (this.mPoints) {
+            this.mSize = newPoints.size();
+            this.mPoints = newPoints;
+        }
     }
 
-    public void addPoint(final double aLatitude, final double aLongitude) {
-        mPoints.add(new PointF((float) aLatitude, (float) aLongitude));
+    public void addPoint(final LatLng aPoint) {
+        synchronized (this.mPoints) {
+            addPoint(aPoint.getLatitude(), aPoint.getLongitude());
+        }
+    }
+
+    private void addPoint(final double aLatitude, final double aLongitude) {
+        PointF lastpoint = (mSize > 0)?mPoints.get(0):null;
+        PointF newpoint = Projection.toMapPixelsProjected(aLatitude, aLongitude, null);
+        if (lastpoint != null && (newpoint.x == lastpoint.x && newpoint.y == lastpoint.y)) {
+            return;
+        }
+        mPoints.add(Projection.toMapPixelsProjected(aLatitude, aLatitude, null));
         mSize += 1;
     }
 
     public void addPoints(final LatLng... aPoints) {
-        for (final LatLng point : aPoints) {
-            addPoint(point);
+        synchronized (this.mPoints) {
+            for (final LatLng point : aPoints) {
+                addPoint(point.getLatitude(), point.getLongitude());
+            }
         }
     }
 
     public void addPoints(final List<LatLng> aPoints) {
-        for (final LatLng point : aPoints) {
-            addPoint(point);
+        synchronized (this.mPoints) {
+            for (final LatLng point : aPoints) {
+                addPoint(point.getLatitude(), point.getLongitude());
+            }
         }
     }
 
@@ -117,8 +163,8 @@ public class PathOverlay extends Overlay {
     }
 
     /**
-     * This method draws the line. Note - highly optimized to handle long paths, proceed with care.
-     * Should be fine up to 10K points.
+     * This method draws the line. Note - highly optimized to handle long paths,
+     * proceed with care. Should be fine up to 10K points.
      */
     @Override
     protected void draw(final Canvas canvas, final MapView mapView) {
@@ -127,62 +173,68 @@ public class PathOverlay extends Overlay {
         if (mSize < 2) {
             return;
         }
+        
+        if (mapView !=  this.mapView) {
+            
+        }
 
         final Projection pj = mapView.getProjection();
         boolean needsDrawing = false;
-        // precompute new points to the intermediate projection.
         synchronized (this.mPoints) {
-            for (; this.mPointsPrecomputed < mSize; this.mPointsPrecomputed++) {
-                final PointF pt = this.mPoints.get(this.mPointsPrecomputed);
-                pj.toMapPixelsProjected((double) pt.x, (double) pt.y, pt);
-            }
 
             PointF screenPoint0 = null; // points on screen
             PointF screenPoint1;
             PointF projectedPoint0; // points from the points list
             PointF projectedPoint1;
 
-            // clipping rectangle in the intermediate projection, to avoid performing projection.
-//            final Rect clipBounds = pj.fromPixelsToProjected(pj.getScreenRect());
-            final RectF clipBounds = pj.fromPixelsToProjected(pj.getTransformScreenRect());
+            // clipping rectangle in the intermediate projection, to avoid
+            // performing projection.
+            // final Rect clipBounds =
+            // pj.fromPixelsToProjected(pj.getScreenRect());
+            final RectF clipBounds = pj.fromPixelsToProjected(pj
+                    .getTransformScreenRect());
 
             mPath.rewind();
             needsDrawing = !mOptimizePath;
             projectedPoint0 = this.mPoints.get(mSize - 1);
-            mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y, (int) projectedPoint0.x,
-                    (int) projectedPoint0.y);
+            mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y,
+                    (int) projectedPoint0.x, (int) projectedPoint0.y);
 
             for (int i = mSize - 2; i >= 0; i--) {
                 // compute next points
                 projectedPoint1 = this.mPoints.get(i);
 
-                //mLineBounds needs to be computed
-                mLineBounds.union((int) projectedPoint1.x, (int) projectedPoint1.y);
+                // mLineBounds needs to be computed
+                mLineBounds.union((int) projectedPoint1.x,
+                        (int) projectedPoint1.y);
 
                 if (mOptimizePath && !RectF.intersects(clipBounds, mLineBounds)) {
                     // skip this line, move to next point
                     projectedPoint0 = projectedPoint1;
-                    mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y, (int) projectedPoint0.x,
+                    mLineBounds.set((int) projectedPoint0.x,
+                            (int) projectedPoint0.y, (int) projectedPoint0.x,
                             (int) projectedPoint0.y);
                     screenPoint0 = null;
                     continue;
                 }
 
-
-                // the starting point may be not calculated, because previous segment was out of clip
+                // the starting point may be not calculated, because previous
+                // segment was out of clip
                 // bounds
                 if (screenPoint0 == null) {
-//                    GeometryUtils.getIntersectionPoint(projectedPoint0, projectedPoint1, clipBounds, this.mTempPoint1);
-//                    projectedPoint0 = this.mTempPoint1;
-                    screenPoint0 = pj.toMapPixelsTranslated(projectedPoint0, this.mTempPoint1);
+                    // GeometryUtils.getIntersectionPoint(projectedPoint0,
+                    // projectedPoint1, clipBounds, this.mTempPoint1);
+                    // projectedPoint0 = this.mTempPoint1;
+                    screenPoint0 = pj.toMapPixelsTranslated(projectedPoint0,
+                            this.mTempPoint1);
                     mPath.moveTo(screenPoint0.x, screenPoint0.y);
                 }
-                screenPoint1 = pj.toMapPixelsTranslated(projectedPoint1, this.mTempPoint2);
-
+                screenPoint1 = pj.toMapPixelsTranslated(projectedPoint1,
+                        this.mTempPoint2);
 
                 // skip this point, too close to previous point
-                if (Math.abs(screenPoint1.x - screenPoint0.x) + Math.abs(
-                        screenPoint1.y - screenPoint0.y) <= 1) {
+                if (Math.abs(screenPoint1.x - screenPoint0.x)
+                        + Math.abs(screenPoint1.y - screenPoint0.y) <= 1) {
                     continue;
                 }
 
@@ -193,7 +245,8 @@ public class PathOverlay extends Overlay {
                 screenPoint0.y = screenPoint1.y;
                 if (mOptimizePath) {
                     needsDrawing = true;
-                    mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y, (int) projectedPoint0.x,
+                    mLineBounds.set((int) projectedPoint0.x,
+                            (int) projectedPoint0.y, (int) projectedPoint0.x,
                             (int) projectedPoint0.y);
                 }
             }
@@ -211,8 +264,8 @@ public class PathOverlay extends Overlay {
     }
 
     /**
-     * if true the path will be optimised. True by default. But be aware that the optimize method
-     * does not work for filled path.
+     * if true the path will be optimised. True by default. But be aware that
+     * the optimize method does not work for filled path.
      */
     public void setOptimizePath(final boolean value) {
         mOptimizePath = value;
