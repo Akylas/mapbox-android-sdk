@@ -7,6 +7,7 @@
     <string name="markersTestMap">Markers Test</string>
     <string name="itemizedOverlayTestMap">ItemizedIconOverlay</string>
     <string name="localGeoJSONTestMap">Local GeoJSON</string>
+    <string name="localOSMTestMap">Local OSM XML</string>
     <string name="diskCacheDisabledTestMap">DiskCache Disabled</string>
     <string name="offlineCacheTestMap">Offline Cache</string>
     <string name="programmaticTestMap">Programmatic</string>
@@ -30,6 +31,8 @@
     <string name="loadMapButtonText">Load Map</string>
     <string name="deleteMapsButtonText">Delete Map</string>
     <string name="resetMapButtonText">Reset</string>
+    <string name="goToButtonText">Go To</string>
+    <string name="animatedMapButtonText">Animate</string>
     <string name="testAccessToken">pk.eyJ1IjoiYmxlZWdlIiwiYSI6IkRGLTFPU00ifQ.qJpq3jytAL9A-z_tkNypqg</string>
     <string name="customInfoWindowOnTouchMessage">Hey, I just customized the CustomInfoWindows\'s onTouchListener()!</string>
 

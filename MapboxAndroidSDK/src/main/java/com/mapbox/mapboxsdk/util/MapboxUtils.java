@@ -3,7 +3,7 @@ package com.mapbox.mapboxsdk.util;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
-import com.mapbox.mapboxsdk.R;
+
 import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.constants.MathConstants;
@@ -16,7 +16,7 @@ public class MapboxUtils implements MapboxConstants {
     // Access Token For V4 of API.  If it doesn't exist an exception will be thrown
     private static String accessToken = null;
 
-    private static Context context = null;
+    private static String versionNumber;
 
     public static String getAccessToken() {
         if (TextUtils.isEmpty(accessToken)) {
@@ -34,14 +34,21 @@ public class MapboxUtils implements MapboxConstants {
         MapboxUtils.accessToken = accessToken;
     }
 
+    public static String getVersionNumber() {
+        return versionNumber;
+    }
+
+    public static void setVersionNumber(String versionNumber) {
+        MapboxUtils.versionNumber = versionNumber;
+    }
+
     public static String getUserAgent() {
-        if (context == null) {
-            return MapboxConstants.USER_AGENT;
-        }
         StringBuffer sb = new StringBuffer("Mapbox Android SDK");
 
-        sb.append("/");
-        sb.append(context.getString(R.string.mapboxAndroidSDKVersion));
+        if (getVersionNumber() != null) {
+            sb.append("/");
+            sb.append(getVersionNumber());
+        }
 
         return sb.toString();
     }
@@ -79,7 +86,7 @@ public class MapboxUtils implements MapboxConstants {
     }
 
     public static String markerIconURL(Context context, String size, String symbol, String color) {
-        // Make a string which follows the MapBox Core API spec for stand-alone markers. This relies on the MapBox API
+        // Make a string which follows the Mapbox Core API spec for stand-alone markers. This relies on the Mapbox API
         // for error checking.
         //
         StringBuffer marker = new StringBuffer("pin-");
@@ -111,7 +118,8 @@ public class MapboxUtils implements MapboxConstants {
     }
 
     public static String getMapTileURL(Context context, String mapID, int zoom, int x, int y, RasterImageQuality imageQuality) {
-        return String.format(MAPBOX_LOCALE, MAPBOX_BASE_URL_V4 + "%s/%d/%d/%d%s.%s?access_token=%s", mapID, zoom, x, y, (AppUtils.isRunningOn2xOrGreaterScreen(context) ? "@2x" : ""), MapboxUtils.qualityExtensionForImageQuality(imageQuality), MapboxUtils.getAccessToken());
+//        return String.format(MAPBOX_LOCALE, MAPBOX_BASE_URL_V4 + "%s/%d/%d/%d%s.%s?access_token=%s", mapID, zoom, x, y, (AppUtils.isRunningOn2xOrGreaterScreen(context) ? "@2x" : ""), MapboxUtils.qualityExtensionForImageQuality(imageQuality), MapboxUtils.getAccessToken());
+        return String.format(MAPBOX_LOCALE, MAPBOX_BASE_URL_V4 + "%s/%d/%d/%d%s.%s?access_token=%s", mapID, zoom, x, y, "", MapboxUtils.qualityExtensionForImageQuality(imageQuality), MapboxUtils.getAccessToken());
     }
 
     /**

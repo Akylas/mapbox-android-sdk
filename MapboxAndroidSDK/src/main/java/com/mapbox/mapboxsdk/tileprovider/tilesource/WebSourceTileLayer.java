@@ -142,8 +142,6 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants {
             }
 
             return result;
-//        } else {
-//            Log.d(TAG, "Skipping tile " + aTile.toString() + " due to NetworkAvailabilityCheck.");
         }
         return null;
     }

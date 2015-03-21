@@ -3,5 +3,4 @@
     <string name="toolTipTitle">Title</string>
     <string name="toolTipDescription">Description</string>
     <string name="toolTipAddress">Address</string>
-    <string name="mapboxAndroidSDKVersion">0.7.0</string>
 </resources>

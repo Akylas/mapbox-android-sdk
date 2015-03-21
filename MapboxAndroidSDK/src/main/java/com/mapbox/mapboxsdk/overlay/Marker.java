@@ -81,9 +81,7 @@ public class Marker {
         this.setTitle(aTitle);
         this.setDescription(aDescription);
         this.mLatLng = aLatLng;
-        if (mv != null) {
-            mAnchor = mv.getDefaultPinAnchor();
-        }
+//		mAnchor = DEFAULT_PIN_ANCHOR;
         mParentHolder = null;
     }
 
@@ -93,17 +91,19 @@ public class Marker {
      * @return Marker
      */
     public Marker addTo(MapView mv) {
+        mapView = mv;
+        context = mv.getContext();
+        if (mAnchor == null) {
+            mAnchor = mv.getDefaultPinAnchor();
+        }
         if (mMarker == null) {
             //if there is an icon it means it's not loaded yet
             //thus change the drawable while waiting
             setMarker(mv.getDefaultPinDrawable());
             isUsingMakiIcon = true;
         }
-        mapView = mv;
-        context = mv.getContext();
-        if (mAnchor == null) {
-            mAnchor = mv.getDefaultPinAnchor();
-        }
+        
+
         return this;
     }
 
@@ -296,14 +296,14 @@ public class Marker {
     }
 
     /**
-     * Gets the custom image (Drawable) used for the Marker's image
+     * Gets the image (Drawable) used for the Marker's image
      * @param stateBitset State Of Marker (@see #ITEM_STATE_FOCUSED_MASK , @see #ITEM_STATE_PRESSED_MASK, @see #ITEM_STATE_SELECTED_MASK)
      * @return marker drawable corresponding to stateBitset
      */
     public Drawable getMarker(final int stateBitset) {
-        // marker not specified
-        if (mMarker == null) {
-            return null;
+        // marker has not been specified yet, so load Default Marker Pin
+        if (mMarker == null && mapView != null) {
+            setMarker(mapView.getDefaultPinDrawable(), true);
         }
 
         // set marker state appropriately
@@ -411,13 +411,16 @@ public class Marker {
      * Get the width of the marker, based on the width of the image backing it.
      */
     public int getWidth() {
-        if (mMarker != null) {
-            return this.mMarker.getIntrinsicWidth();
+        if (mMarker == null) {
+            return 0;
         }
-        return 0;
+        return mMarker.getIntrinsicWidth();
     }
 
     public int getHeight() {
+        if (mMarker == null) {
+            return 0;
+        }
         int result = getRealHeight();
         if (isUsingMakiIcon) {
             result /= 2;
@@ -426,10 +429,10 @@ public class Marker {
     }
     
     public int getRealHeight() {
-        if (mMarker != null) {
-            return this.mMarker.getIntrinsicHeight();
+        if (mMarker == null) {
+            return 0;
         }
-        return 0;
+        return mMarker.getIntrinsicHeight();
     }
 
     /**

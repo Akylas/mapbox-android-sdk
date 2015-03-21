@@ -20,8 +20,6 @@ navigation:
     hash: the-mapview
   - text: Overlays
     hash: overlays
-  - text: Switching layers
-    hash: switching-layers
   - text: Screen rotation
     hash: screen-rotation
   - text: Including SDK JavaDoc
@@ -75,7 +73,7 @@ $(function load() {
 
     <div class='fr dark'><!--
       --><span class='fill-darken1 pad1x round-left inline'>Mapbox Android SDK</span><!--
-      --><span class='pad1x inline round-right keyline-left quiet dark fill-darken2'>{{site.version}}</span>
+      --><span class='pad1x inline round-right keyline-left quiet dark fill-darken2'>0.7.2</span>
     </div>
     Installation
   </div>
@@ -86,7 +84,7 @@ $(function load() {
         <div class='pin-right'>
           <a href='#installation' class='icon x button quiet unround'></a>
         </div>
-        <p>We recommend installing with <a href='http://www.gradle.org'>Gradle</a>. This will automatically install the necessary dependencies and pull the SDK binaries from the Maven Central repository <a href='http://search.maven.org/#artifactdetails%7Ccom.mapbox.mapboxsdk%7Cmapbox-android-sdk%7C{{site.version}}%7Cjar'>Mapbox Android SDK on Maven Central</a>.</p>
+        <p>We recommend installing with <a href='http://www.gradle.org'>Gradle</a>. This will automatically install the necessary dependencies and pull the SDK binaries from the Maven Central repository <a href='http://search.maven.org/#artifactdetails%7Ccom.mapbox.mapboxsdk%7Cmapbox-android-sdk%7C0.7.2%7Cjar'>Mapbox Android SDK on Maven Central</a>.</p>
         <p>To install the current <strong>stable</strong> version add this to your <code>build.gradle</code>:</p>
 
 {% highlight groovy %}
@@ -95,10 +93,7 @@ repositories {
 }
 
 dependencies {
-    compile ('com.mapbox.mapboxsdk:mapbox-android-sdk:{{site.version}}@aar'){
-        transitive=true
-    }
-    compile ('com.cocoahero.android:geojson:1.0.0@aar'){
+    compile ('com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.2@aar'){
         transitive=true
     }
 }
@@ -114,11 +109,8 @@ repositories {
 }
 
 dependencies {
-    compile ('com.mapbox.mapboxsdk:mapbox-android-sdk:{{site.snapshot}}@aar'){
+    compile ('com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.3-SNAPSHOT@aar'){
         transitive=true
-    }
-    compile ('com.cocoahero.android:geojson:1.0.0@aar'){
-          transitive=true
     }
 }
 {% endhighlight %}
@@ -137,11 +129,11 @@ dependencies {
         <ol>
           <li>Stable / Supported.</li>
             <ul>
-                <li>Currently <code>{{site.version}}</code></li>
+                <li>Currently <code>0.7.2</code></li>
             </ul>
           <li>SNAPSHOT</li>
             <ul>
-                <li>Currently <code>{{site.snapshot}}</code></li>
+                <li>Currently <code>0.7.3-SNAPSHOT</code></li>
             </ul>
           <li>Source</li>
         </ol>
@@ -158,15 +150,19 @@ dependencies {
         <div class='pin-right'>
           <a href='#installation' class='icon x button quiet unround'></a>
         </div>
-        <p>The Mapbox Android SDK is also packaged as a <code>.apk</code> file.  This allows integration with older tools (Eclipse) that don't support the <code>.aar</code> format yet.  It's also available from Maven Central via:</p>
+        <p>The Mapbox Android SDK is also packaged as a <code>.apklib</code> file. This allows integration with older tools (Eclipse) that don't support the <code>.aar</code> format yet. In order to make this work the project will need to make use of <a href="http://maven.apache.org/" target="_blank">Maven</a>, and it the case of Eclipse the <a href="http://eclipse.org/m2e/" target="_blank">M2Eclipse</a> Maven plugin. From there configure the Maven pom.xml to include the following dependency:</p>
 {% highlight xml %}
 <dependency>
     <groupId>com.mapbox.mapboxsdk</groupId>
     <artifactId>mapbox-android-sdk</artifactId>
-    <version>{{site.version}}</version>
+    <version>0.7.2</version>
     <type>apklib</type>
 </dependency>
 {% endhighlight %}
+          <p>For more information on how to use Maven and Eclipse together please see Sonatype's <a href="http://books.sonatype.com/m2eclipse-book/reference/" target="_blank">Developing with Eclipse and Maven</a> tutorial.</p>
+          <p><strong>Hardcoding:</strong></p>
+          <p>The best way to make sure that the Mapbox Android SDK is setup properly (as well as updated as new versions are released) is to make use of Gradle or Maven as documented above. However, if that's not possible the Mapbox Android SDK can also be added to the project by hardcoding it in. Please note that this is <strong>extremely brittle</strong> and not scalable.</p>
+          <p>Instructions for doing this can be found on the <a href="https://github.com/mapbox/mapbox-android-sdk#eclipse-hardcoding---not-recommended">project's GitHub README</a> Web page.</p>
       </div>
     </div>
 
@@ -184,34 +180,12 @@ git clone https://github.com/mapbox/mapbox-android-sdk.git
 
         <p>We use Gradle as a configuration and build tool: to use it with your IDE, import the project by selecting <code>build.gradle</code> in the project root directory as the project file.</p>
 
-        <p>Don't worry about installing Gradle on your system if you don't already have it:  the project makes use of Gradle Wrapper, so a correct &amp; current project version of Gradle will automatically be installed and used to run the builds. To use the Gradle wrapper just look for `gradlew`  or `gradlew.bat` (Windows) in the project's main directory.  For example:</p>
-
-{% highlight bash %}
-cd <PROJECT_ROOT>
-./gradlew --version
-{% endhighlight %}
-
-        <p>which will produce something like:</p>
-
-{% highlight bash %}
-------------------------------------------------------------
-Gradle 1.10
-------------------------------------------------------------
-
-Build time:   2013-12-17 09:28:15 UTC
-Build number: none
-Revision:     36ced393628875ff15575fa03d16c1349ffe8bb6
-
-Groovy:       1.8.6
-Ant:          Apache Ant(TM) version 1.9.2 compiled on July 8 2013
-Ivy:          2.2.0
-JVM:          1.7.0_40 (Oracle Corporation 24.0-b56)
-OS:           Mac OS X 10.9.2 x86_64
-{% endhighlight %}
+        <p>Don't worry about installing Gradle on your system if you don't already have it:  the project makes use of Gradle Wrapper, so a correct &amp; current project version of Gradle will automatically be installed and used to run the builds. To use the Gradle wrapper just look for `gradlew`  or `gradlew.bat` (Windows) in the project's main directory.</p>
 
         <p>See the <a href='http://www.gradle.org/docs/current/userguide/gradle_wrapper.html'>Gradle Wrapper documentation for more details</a>. Then you can build an archive:</p>
 
 {% highlight bash %}
+cd  <PROJECTHOME>
 ./gradlew clean assembleRelease
 
 # The archive (mapbox-android-sdk-<VERSION>.aar) will be found in
@@ -262,7 +236,8 @@ OS:           Mac OS X 10.9.2 x86_64
 android:id="@+id/mapview"
 android:layout_width="fill_parent"
 android:layout_height="fill_parent"
-mapbox:mapid="Your MapBox mapid" />
+mapbox:mapid="Your MapBox mapid"
+mapbox:accessToken="Your Mapbox Access Token"/>
 {% endhighlight %}
 
 <p>And then you can call it programmatically with</p>
@@ -276,7 +251,9 @@ this.findViewById(R.id.mapview);
 <p>On runtime you can create a new MapView by specifying the context of the application and a valid <a href='https://www.mapbox.com/developers/api-overview/'>MapBox mapid</a>, a TileJSON file or a zxy image template.</p>
 
 {% highlight java %}
-MapView mapView = new MapView(this, "examples.map-vyofok3q");
+MapView mapView = new MapView(context);
+mapView.setAccessToken("Your Mapbox Access Token");
+mapView.setTileSource(new MapboxTileLayer("examples.map-vyofok3q"));
 {% endhighlight %}
 
 And set it as the current view like this:
@@ -336,13 +313,6 @@ class AnyOverlay extends Overlay{
 }
 {% endhighlight %}
 
-<h2 id='switching-layers'>Switching layers <em>(experimental)</em></h2>
-<p>We're making switchable layers as simple as possible in the SDK. You can try toggling between several maps (identified by a valid MapBox ID, a TileJSON file or a zxy image template) using the switchToLayer method.</p>
-
-{% highlight java %}
-mapView.switchToLayer("{{site.defaultid}}");
-{% endhighlight %}
-
 <h2 id='screen-rotation'>Screen rotation</h2>
 <p>By default, every time the screen is rotated, Android will call <code>onCreate</code> and return all states in the app to their inital values. This includes current zoom level and position of the MapView. The simplest way to avoid this is adding this line to your <code>AndroidManifest.xml</code>, inside <code><activity></code>:</p>
 
@@ -354,11 +324,11 @@ android:configChanges="orientation|screenSize|uiMode"
 
 <h2 id='including-sdk-javadoc'>Including SDK JavaDoc</h2>
 
-<p>JavaDocs are automatically generated and distributed with each official and SNAPSHOT release.  They can be downloaded from Maven Central for local viewing and / or integration with an IDE.  The latest official version is available here:</p>
+<p>JavaDocs are automatically generated and distributed with each official and SNAPSHOT release and can be downloaded for local viewing and / or integration with an IDE.</p>
 
 <ul>
-  <li><a href='http://search.maven.org/#artifactdetails%7Ccom.mapbox.mapboxsdk%7Cmapbox-android-sdk%7C{{site.version}}%7Cjar'><code>{{site.version}}</code> Release Overview</a></li>
-  <li><a href='http://search.maven.org/remotecontent?filepath=com/mapbox/mapboxsdk/mapbox-android-sdk/{{site.version}}/mapbox-android-sdk-{{site.version}}-javadoc.jar'><code>{{site.version}}</code> JavaDoc</a></li>
+  <li><a href="http://search.maven.org/#search|ga|1|mapbox" target="_blank">Official Release</a></li>
+  <li><a href="https://oss.sonatype.org/content/repositories/snapshots/com/mapbox/mapboxsdk/mapbox-android-sdk/" target="_blank">SNAPSHOT Releases</a></li>
 </ul>
 
 <h2 id='generating-sdk-documentation'>Generating SDK Documentation (aka JavaDoc)</h2>

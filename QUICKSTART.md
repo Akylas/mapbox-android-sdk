@@ -35,7 +35,8 @@ To add the `MapView` as a layout element, add the following to your xml file:
 android:id="@+id/mapview"
 android:layout_width="fill_parent"
 android:layout_height="fill_parent"
-mapbox:mapid="Your Mapbox mapid" />
+mapbox:mapid="Your Mapbox mapid"
+mapbox:accessToken="Your Mapbox Access Token"/>
 ```
 
 
@@ -54,6 +55,7 @@ a [ZXY image template](http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames).
 
 ```java
 MapView mapView = new MapView(context);
+mapView.setAccessToken("Your Mapbox Access Token");
 mapView.setTileSource(new MapboxTileLayer("examples.map-vyofok3q"));
 ```
 
@@ -120,15 +122,6 @@ class AnyOverlay extends Overlay{
 }
 ```
 
-### Switching layers *(experimental)*
-
-You can toggle between several maps (identified by a valid Mapbox ID, a TileJSON file
-or a zxy image template) using the switchToLayer method
-
-```java
-mapView.switchToLayer("examples.map-vyofok3q");
-```
-
 ### Screen rotation
 
 By default, every time the screen is rotated, Android will call `onCreate`
@@ -145,7 +138,7 @@ more information on these methods
 
 ### More Examples Via TestApp
 
-The Mapbox Android SDK is actually an [Android Library Module](https://developer.android.com/tools/projects/index.html#LibraryModules), 
+The Mapbox Android SDK is actually an [Android Library Module](https://developer.android.com/tools/projects/index.html#LibraryModules),
 which means in order to test it out in an emulator or a device during development a [Test Module](https://developer.android.com/tools/projects/index.html#testing) is needed.  We call this test module
 the **TestApp**.  It contains many different examples of new functionality or just ways to do certain things.  We highly recommend checking it out.
 

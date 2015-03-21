@@ -2,6 +2,7 @@ package com.mapbox.mapboxsdk.tileprovider.tilesource;
 
 import android.text.TextUtils;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
+import com.mapbox.mapboxsdk.tileprovider.MapTile;
 import com.mapbox.mapboxsdk.util.MapboxUtils;
 import com.mapbox.mapboxsdk.views.util.constants.MapViewConstants;
 import java.util.Locale;
@@ -53,6 +54,12 @@ public class MapboxTileLayer extends TileJsonTileLayer implements MapViewConstan
         }
 
         return url;
+    }
+
+    @Override
+    public String getTileURL(final MapTile aTile, boolean hdpi) {
+        //disable hdpi for mapbox
+        return super.getTileURL(aTile, false);
     }
 
     public String getCacheKey() {

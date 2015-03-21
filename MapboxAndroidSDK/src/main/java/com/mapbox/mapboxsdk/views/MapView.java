@@ -325,6 +325,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
         mOverlayManager = new OverlayManager(mTilesOverlay);
         this.context = aContext;
         this.mGesturesHandler = new MapViewGesturesHandler(context, this, mScroller);
+        MapboxUtils.setVersionNumber(context.getResources().getString(R.string.mapboxAndroidSDKVersion));
         eventsOverlay = new MapEventsOverlay(aContext, this);
         this.getOverlays().add(eventsOverlay);
 
@@ -459,7 +460,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
     /**
      * Set the tile source of this map as an array of tile layers,
      * which will be presented on top of each other.
-     * @param value
+     * @param value Array of TileLayer
      */
     public void setTileSource(final ITileLayer[] value) {
         if (value != null && mTileProvider != null
@@ -470,10 +471,9 @@ public class MapView extends FrameLayout implements MapViewConstants,
     }
 
     /**
-     * Set the tile source of this map as a single source, and trigger an
-     * update.
-     * 
-     * @param aTileSource
+     * Set the tile source of this map as a single source, and trigger
+     * an update.
+     * @param aTileSource TileLayer to use
      */
     public void setTileSource(final ITileLayer aTileSource) {
         if (aTileSource != null && mTileProvider != null
@@ -691,7 +691,14 @@ public class MapView extends FrameLayout implements MapViewConstants,
      * Select a marker, showing a tooltip if the marker has content that would appear within it.
      */
     public void selectMarker(final Marker marker) {
-        
+        selectMarker(marker, true);
+    }
+
+    /**
+     * Select a marker, showing a tooltip if display_bubble is set to true and
+     * the marker has content that would appear within it.
+     */
+    public void selectMarker(final Marker marker, final boolean displayBubble) {        
         boolean selectedMarker = marker == defaultMarkerOverlay.getFocus();
         if (selectedMarker && currentInfoWindow != null) {
             //already selected
@@ -706,7 +713,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
         }
 
         closeCurrentInfoWindow();
-        if (marker.hasContent()) {
+        if (marker.hasContent() && displayBubble) {
             if (mOnInfoWindowShowListener != null) {
                 mOnInfoWindowShowListener.onInfoWindowShow(marker);
             }
@@ -736,8 +743,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
 
     /**
      * Get all itemized overlays on the map as an ArrayList.
-     * 
-     * @return
+     * @return ArrayList<ItemizedIconOverlay> ArrayList of ItemizedIconOverlays
      */
     public ArrayList<ItemizedIconOverlay> getItemizedOverlays() {
         ArrayList<ItemizedIconOverlay> list = new ArrayList<ItemizedIconOverlay>();
@@ -2109,7 +2115,8 @@ public class MapView extends FrameLayout implements MapViewConstants,
     }
 
     /**
-     * Show or hide the user location overlay
+     * Get status of user location overlay
+     * @return boolean true if enabled, false if not enabled
      */
     public final boolean getUserLocationEnabled() {
         if (mLocationOverlay != null) {
@@ -2204,8 +2211,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
 
     /**
      * Determines if maps are animating a zoom operation. Useful for overlays to avoid
-     * recalculating
-     * during an animation sequence.
+     * recalculating during an animation sequence.
      *
      * @return boolean indicating whether view is animating.
      */

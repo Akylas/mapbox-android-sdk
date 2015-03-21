@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 public class SaveMapOfflineTestFragment extends Fragment implements MapboxConstants, OfflineMapDownloaderListener {
 
-    private static final String TAG = "SaveMapOfflineTestFragment";
+    private static final String TAG = "SaveMapOfflineTest";
 
     private MapView mapView;
     private TilesOverlay offlineMapOverlay;

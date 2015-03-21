@@ -124,11 +124,11 @@ public class PathOverlay extends Overlay {
 
     public void addPoint(final LatLng aPoint) {
         synchronized (this.mPoints) {
-            addPoint(aPoint.getLatitude(), aPoint.getLongitude());
+            addPointInternal(aPoint.getLatitude(), aPoint.getLongitude());
         }
     }
 
-    private void addPoint(final double aLatitude, final double aLongitude) {
+    private void addPointInternal(final double aLatitude, final double aLongitude) {
         PointF lastpoint = (mSize > 0)?mPoints.get(0):null;
         PointF newpoint = Projection.toMapPixelsProjected(aLatitude, aLongitude, null);
         if (lastpoint != null && (newpoint.x == lastpoint.x && newpoint.y == lastpoint.y)) {
@@ -138,10 +138,16 @@ public class PathOverlay extends Overlay {
         mSize += 1;
     }
 
+    public void addPoint(final double aLatitude, final double aLongitude) {
+        synchronized (this.mPoints) {
+               addPointInternal(aLatitude, aLongitude);
+        }
+    }
+
     public void addPoints(final LatLng... aPoints) {
         synchronized (this.mPoints) {
             for (final LatLng point : aPoints) {
-                addPoint(point.getLatitude(), point.getLongitude());
+                addPointInternal(point.getLatitude(), point.getLongitude());
             }
         }
     }
@@ -149,7 +155,7 @@ public class PathOverlay extends Overlay {
     public void addPoints(final List<LatLng> aPoints) {
         synchronized (this.mPoints) {
             for (final LatLng point : aPoints) {
-                addPoint(point.getLatitude(), point.getLongitude());
+                addPointInternal(point.getLatitude(), point.getLongitude());
             }
         }
     }

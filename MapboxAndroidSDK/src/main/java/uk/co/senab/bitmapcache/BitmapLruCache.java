@@ -428,7 +428,7 @@ public class BitmapLruCache {
             lock.lock();
 
             OutputStream os = null;
-            Log.d(Constants.LOG_TAG, "writing to disk cache" + url);
+//            Log.d(Constants.LOG_TAG, "writing to disk cache" + url);
 
             try {
                 DiskLruCache.Editor editor = mDiskCache.edit(key);

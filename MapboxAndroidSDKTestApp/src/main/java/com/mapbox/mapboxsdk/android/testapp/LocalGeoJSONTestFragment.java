@@ -23,8 +23,8 @@ public class LocalGeoJSONTestFragment extends Fragment {
 
         // Setup Map
         mapView = (MapView) view.findViewById(R.id.localGeoJSONMapView);
-        mapView.setCenter(new LatLng(44.1726, 5.2923));
-        mapView.setZoom(12);
+        mapView.setCenter(new LatLng(47.668780,-122.387883));
+        mapView.setZoom(14);
 
         return view;
     }
@@ -35,7 +35,7 @@ public class LocalGeoJSONTestFragment extends Fragment {
 
         // Load GeoJSON
         try {
-            FeatureCollection features = DataLoadingUtils.loadGeoJSONFromAssets(getActivity(), "ventoux.geojson");
+            FeatureCollection features = DataLoadingUtils.loadGeoJSONFromAssets(getActivity(), "spatialdev_small.geojson");
             ArrayList<Object> uiObjects = DataLoadingUtils.createUIObjectsFromGeoJSONObjects(features, null);
 
             for (Object obj : uiObjects) {
