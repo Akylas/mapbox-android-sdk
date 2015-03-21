@@ -361,10 +361,10 @@ public class MapViewGesturesHandler {
             }
         }
         if (mScaleEnabled) {
-            mScaleGestureDetector.onTouchEvent(event);
+            mScaleGestureDetector.onTouchEvent(rotatedEvent);
         }
         if (mShoveEnabled) {
-            mShoveGestureDetector.onTouchEvent(event);
+            mShoveGestureDetector.onTouchEvent(rotatedEvent);
         }
         canTapTwoFingers = canTapTwoFingers & !isInteracting();
         handleTwoFingersTap(rotatedEvent);
