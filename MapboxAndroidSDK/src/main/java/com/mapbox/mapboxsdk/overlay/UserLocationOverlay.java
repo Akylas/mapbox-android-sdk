@@ -195,7 +195,7 @@ public class UserLocationOverlay extends SafeDrawOverlay implements Snappable, M
             canvas.drawText("Alt: " + lastFix.getAltitude(), tx, ty + 35, mPaint);
             canvas.drawText("Acc: " + lastFix.getAccuracy(), tx, ty + 50, mPaint);
         }
-        float rotate = -mMapView.getMapOrientation();
+        float rotate = 0;
         Bitmap bitmap = mPersonBitmap;
         PointF anchor = mPersonHotspot;
         if (lastFix.hasBearing()) {
