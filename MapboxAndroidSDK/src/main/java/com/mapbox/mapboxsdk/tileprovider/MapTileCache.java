@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.mapbox.mapboxsdk.tileprovider.constants.TileLayerConstants;
 import com.mapbox.mapboxsdk.util.BitmapUtils;
+import com.mapbox.mapboxsdk.util.NetworkUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -28,7 +29,7 @@ public class MapTileCache implements TileLayerConstants {
     protected static BitmapLruCache sCachedTiles = null;
     private Context context;
     static final String TAG = "MapTileCache";
-    private static final String DISK_CACHE_SUBDIR = "mapbox_tiles_cache";
+
     private int mMaximumCacheSize;
     private OnDiskCacheSetListener mDiskCacheListener;
 
@@ -52,7 +53,7 @@ public class MapTileCache implements TileLayerConstants {
      */
     protected BitmapLruCache getCache() {
         if (sCachedTiles == null) {
-            File cacheDir = getDiskCacheDir(context, DISK_CACHE_SUBDIR);
+            File cacheDir = NetworkUtils.getDiskCacheDir(context, NetworkUtils.DISK_TILES_CACHE_SUBDIR);
             if (!cacheDir.exists()) {
                 if (cacheDir.mkdirs()) {
                     Log.i(TAG, "created cacheDir " + cacheDir.getAbsolutePath());
@@ -186,6 +187,7 @@ public class MapTileCache implements TileLayerConstants {
 
     public void purgeDiskCache() {
         getCache().purgeDiskCache();
+        sCachedTiles = null;
     }
 
     public CacheableBitmapDrawable createCacheableBitmapDrawable(Bitmap bitmap, MapTile aTile) {
@@ -206,23 +208,7 @@ public class MapTileCache implements TileLayerConstants {
         return getCache().decodeBitmap(ip, opts);
     }
 
-    /**
-     * Creates a unique subdirectory of the designated app cache directory. Tries to use external
-     * but if not mounted, falls back on internal storage.
-     */
-    public static File getDiskCacheDir(Context context, String uniqueName) {
-        // Check if media is mounted or storage is built-in, if so, try and use external cache dir
-        // otherwise use internal cache dir
-        final String cachePath =
-                context.getExternalCacheDir() != null && (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
-                        || (!Environment.isExternalStorageRemovable()))
-                        ? context.getExternalCacheDir().getPath()
-                        : context.getCacheDir().getPath();
-//        Log.i(TAG, "cachePath: '" + cachePath + "'");
-
-        return new File(cachePath, uniqueName);
-    }
-
+    
     public void setDiskCacheEnabled(final boolean enabled) {
         if (mDiskCacheEnabled != enabled) {
             mDiskCacheEnabled = enabled;

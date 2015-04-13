@@ -8,26 +8,25 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.constants.MathConstants;
 import com.mapbox.mapboxsdk.geometry.CoordinateRegion;
 import com.mapbox.mapboxsdk.util.AppUtils;
-import com.mapbox.mapboxsdk.util.DataLoadingUtils;
 import com.mapbox.mapboxsdk.util.MapboxUtils;
 import com.mapbox.mapboxsdk.util.NetworkUtils;
+import com.squareup.okhttp.Response;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.BufferedReader;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -280,11 +279,10 @@ public class OfflineMapDownloader implements MapboxConstants {
                 protected Void doInBackground(String... params) {
                     HttpURLConnection conn = null;
                     try {
-                        conn = NetworkUtils.getHttpURLConnection(new URL(params[0]));
+                        Response response = NetworkUtils.getOkHttpClient().newCall(NetworkUtils.getHttpRequest(url)).execute();
                         Log.d(TAG, "URL to download = " + conn.getURL().toString());
-                        conn.setConnectTimeout(60000);
-                        conn.connect();
-                        int rc = conn.getResponseCode();
+                        if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+                        int rc = response.code();
                         if (rc != HttpURLConnection.HTTP_OK) {
                             String msg = String.format(MAPBOX_LOCALE, "HTTP Error connection.  Response Code = %d for url = %s", rc, conn.getURL().toString());
                             Log.w(TAG, msg);
@@ -295,7 +293,7 @@ public class OfflineMapDownloader implements MapboxConstants {
                         ByteArrayOutputStream bais = new ByteArrayOutputStream();
                         InputStream is = null;
                         try {
-                            is = conn.getInputStream();
+                            is = response.body().byteStream();
                             // Read 4K at a time
                             byte[] byteChunk = new byte[4096];
                             int n;
@@ -665,22 +663,17 @@ public class OfflineMapDownloader implements MapboxConstants {
                 @Override
                 protected Void doInBackground(Void... params) {
                     try {
-                        HttpURLConnection conn = NetworkUtils.getHttpURLConnection(new URL(geojson));
-                        conn.setConnectTimeout(60000);
-                        conn.connect();
-                        if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                        Response response = NetworkUtils.getOkHttpClient().newCall(NetworkUtils.getHttpRequest(geojson)).execute();
+                        if (!response.isSuccessful() || response.code() != HttpURLConnection.HTTP_OK) {
                             throw new IOException();
                         }
-
-                        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), Charset.forName("UTF-8")));
-                        String jsonText = DataLoadingUtils.readAll(rd);
 
                         // The marker geojson was successfully retrieved, so parse it for marker icons. Note that we shouldn't
                         // try to save it here, because it may already be in the download queue and saving it twice will mess
                         // up the count of urls to be downloaded!
                         //
                         Set<String> markerIconURLStrings = new HashSet<String>();
-                        markerIconURLStrings.addAll(parseMarkerIconURLStringsFromGeojsonData(jsonText));
+                        markerIconURLStrings.addAll(parseMarkerIconURLStringsFromGeojsonData(response.body().string()));
                         Log.i(TAG, "Number of markerIconURLs = " + markerIconURLStrings.size());
                         if (markerIconURLStrings.size() > 0) {
                             urls.addAll(markerIconURLStrings);

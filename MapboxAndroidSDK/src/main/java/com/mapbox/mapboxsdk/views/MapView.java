@@ -705,6 +705,14 @@ public class MapView extends FrameLayout implements MapViewConstants,
             getController().animateTo(marker.getPoint());
             return;
         }
+        if (marker == null) {
+            //equivalent to unselect
+            Marker selected = defaultMarkerOverlay.getFocus();
+            if (selected != null) {
+                selected.blur();
+            }
+            return;
+        }
         InfoWindow toolTip = marker.getInfoWindow();
 
 
@@ -1224,6 +1232,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
         if (inter == null || !inter.isValid()) {
             return this;
         }
+        Log.d(TAG, "zoomToBoundingBox " + inter.toString());
         if (!mLayedOut) {
             mBoundingBoxToZoomOn = inter;
             mBoundingBoxToZoomOnRegionFit = regionFit;
@@ -1235,7 +1244,7 @@ public class MapView extends FrameLayout implements MapViewConstants,
         final LatLng center = inter.getCenter();
         final float zoom = (float) minimumZoomForBoundingBox(inter, regionFit,
                 roundedZoom);
-
+        Log.d(TAG, "zoomToBoundingBox zoom" + zoom);
         if (animated) {
             getController().setZoomAnimated(zoom, center, true, userAction);
         } else {
@@ -2200,6 +2209,13 @@ public class MapView extends FrameLayout implements MapViewConstants,
     public void setDiskCacheEnabled(final boolean enabled) {
         if (mTileProvider != null) {
             mTileProvider.setDiskCacheEnabled(enabled);
+        }
+    }
+    
+    public void clearCache() {
+        if (mTileProvider != null) {
+            mTileProvider.clearTileDiskCache();
+            mTileProvider.clearTileMemoryCache();
         }
     }
 

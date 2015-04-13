@@ -1,22 +1,22 @@
 package com.mapbox.mapboxsdk.tileprovider.tilesource;
 
-import android.os.AsyncTask;
 import android.util.Log;
+
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.util.NetworkUtils;
 import com.mapbox.mapboxsdk.util.constants.UtilConstants;
-import com.squareup.okhttp.Cache;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.UUID;
 
 /**
  * A type of tile layer that loads tiles from the internet and metadata about itself
@@ -27,22 +27,42 @@ public class TileJsonTileLayer extends WebSourceTileLayer {
     private static final String TAG = "TileJsonTileLayer";
 
     private JSONObject tileJSON;
-    private Cache cache;
 
     public TileJsonTileLayer(final String pId, final String url, final boolean enableSSL) {
         super(pId, url, enableSSL);
-
-        File cacheDir =
-                new File(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString());
-        try {
-            cache = NetworkUtils.getCache(cacheDir, 1024);
-        } catch (Exception e) {
-            Log.e(TAG, "Cache creation failed.", e);
-        }
-
+    }
+    
+    public TileJsonTileLayer(final String pId, final String url, final boolean enableSSL, final boolean shouldInit) {
+        super(pId, url, enableSSL, shouldInit);
+    }
+    
+    protected void initialize(String pId, String aUrl, boolean enableSSL) {
+        super.initialize(pId, aUrl, enableSSL);
         String jsonURL = this.getBrandedJSONURL();
         if (jsonURL != null) {
-            fetchBrandedJSONAndInit(jsonURL);
+            NetworkUtils.getOkHttpClient()
+                    .newCall(NetworkUtils.getHttpRequest(jsonURL))
+                    .enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Request request, IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        @Override
+                        public void onResponse(Response response)
+                                throws IOException {
+                            if (!response.isSuccessful())
+                                throw new IOException("Unexpected code "
+                                        + response);
+                            try {
+                                initWithTileJSON(new JSONObject(response.body()
+                                        .string()));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    });
         }
     }
 
@@ -140,41 +160,8 @@ public class TileJsonTileLayer extends WebSourceTileLayer {
         return out.toByteArray();
     }
 
-    private void fetchBrandedJSONAndInit(String url) {
-        new RetrieveJSONTask() {
-            @Override
-            protected void onPostExecute(JSONObject jsonObject) {
-                initWithTileJSON(jsonObject);
-            }
-        } .execute(url);
-    }
-
     protected String getBrandedJSONURL() {
         return null;
     }
 
-    class RetrieveJSONTask extends AsyncTask<String, Void, JSONObject> {
-        protected JSONObject doInBackground(String... urls) {
-            InputStream in = null;
-            try {
-                URL url = new URL(urls[0]);
-                HttpURLConnection connection = NetworkUtils.getHttpURLConnection(url, cache);
-                in = connection.getInputStream();
-                byte[] response = readFully(in);
-                String result = new String(response, "UTF-8");
-                return new JSONObject(result);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            } finally {
-                try {
-                    if (in != null) {
-                        in.close();
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "Error closing InputStream: " + e.toString());
-                }
-            }
-        }
-    }
 }

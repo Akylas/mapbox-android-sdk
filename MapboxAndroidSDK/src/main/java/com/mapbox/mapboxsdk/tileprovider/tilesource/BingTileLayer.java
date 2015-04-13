@@ -1,17 +1,16 @@
 package com.mapbox.mapboxsdk.tileprovider.tilesource;
 
-import android.os.AsyncTask;
 import com.mapbox.mapboxsdk.tileprovider.MapTile;
 import com.mapbox.mapboxsdk.util.NetworkUtils;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.Charset;
 
 public class BingTileLayer extends WebSourceTileLayer {
 
@@ -79,58 +78,38 @@ public class BingTileLayer extends WebSourceTileLayer {
     }
 
     private void getMetadata() {
-        try {
-            synchronized (this) {
-                if (mHasMetadata) {
-                    return;
-                }
-                RetrieveMetadata rm = new RetrieveMetadata(mBingMapKey, mStyle) {
-                    @Override
-                    protected void onPostExecute(Boolean success) {
-                        mHasMetadata = success == Boolean.TRUE;
-                    }
-                };
-                rm.execute();
+        synchronized (this) {
+            if (mHasMetadata) {
+                return;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+            String url = String.format(BASE_URL_PATTERN, mStyle, mBingMapKey);
+            NetworkUtils.getOkHttpClient()
+                    .newCall(NetworkUtils.getHttpRequest(url))
+                    .enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Request request, IOException e) {
+                            e.printStackTrace();
+                        }
 
-    private class RetrieveMetadata extends AsyncTask<Void, Void, Boolean> {
-        String mKey;
-        String mStyle;
+                        @Override
+                        public void onResponse(Response response)
+                                throws IOException {
+                            if (!response.isSuccessful())
+                                throw new IOException("Unexpected code "
+                                        + response);
+                            try {
+                                String metadataUrl = getInstanceFromJSON(
+                                        response.body().string()).replace(
+                                        "{culture}", "en");
 
-        public RetrieveMetadata(String key, String style) {
-            mKey = key;
-            mStyle = style;
-        }
+                                mUrl = metadataUrl;
+                                mHasMetadata = Boolean.TRUE;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
 
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            try {
-                synchronized (BingTileLayer.this) {
-                    if (mHasMetadata) {
-                        return null;
-                    }
-                    String url = String.format(BASE_URL_PATTERN, mStyle, mKey);
-
-                    HttpURLConnection connection = NetworkUtils.getHttpURLConnection(new URL(url));
-                    BufferedReader rd = new BufferedReader(
-                            new InputStreamReader(connection.getInputStream(), Charset.forName("UTF-8")));
-
-                    String content = readAll(rd);
-
-                    String metadataUrl = getInstanceFromJSON(content).replace("{culture}", "en");
-
-                    mUrl = metadataUrl;
-
-                    return Boolean.TRUE;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return Boolean.FALSE;
-            }
+                    });
         }
     }
 

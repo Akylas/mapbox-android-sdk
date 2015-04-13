@@ -19,6 +19,7 @@ import com.mapbox.mapboxsdk.overlay.Icon;
 import com.mapbox.mapboxsdk.overlay.Marker;
 import com.mapbox.mapboxsdk.overlay.PathOverlay;
 import com.mapbox.mapboxsdk.util.constants.UtilConstants;
+import com.squareup.okhttp.Response;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,10 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class DataLoadingUtils {
 
@@ -50,17 +49,10 @@ public class DataLoadingUtils {
         if (UtilConstants.DEBUGMODE) {
             Log.d(DataLoadingUtils.class.getCanonicalName(), "Mapbox SDK downloading GeoJSON URL: " + url);
         }
+        Response response = NetworkUtils.getOkHttpClient().newCall(NetworkUtils.getHttpRequest(url)).execute();
+        if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-        InputStream is;
-        if (url.toLowerCase(Locale.US).indexOf("http") == 0) {
-            is = NetworkUtils.getHttpURLConnection(new URL(url)).getInputStream();
-        } else {
-            is = new URL(url).openStream();
-        }
-        BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-        String jsonText = readAll(rd);
-
-        FeatureCollection parsed = (FeatureCollection) GeoJSON.parse(jsonText);
+        FeatureCollection parsed = (FeatureCollection) GeoJSON.parse(response.body().string());
         if (UtilConstants.DEBUGMODE) {
             Log.d(DataLoadingUtils.class.getCanonicalName(), "Parsed GeoJSON with " + parsed.getFeatures().size() + " features.");
         }

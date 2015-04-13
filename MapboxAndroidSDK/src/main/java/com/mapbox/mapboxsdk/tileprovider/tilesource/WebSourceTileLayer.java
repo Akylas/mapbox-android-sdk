@@ -14,9 +14,11 @@ import com.mapbox.mapboxsdk.tileprovider.modules.MapTileDownloader;
 import com.mapbox.mapboxsdk.util.NetworkUtils;
 import com.mapbox.mapboxsdk.views.util.TileLoadedListener;
 import com.mapbox.mapboxsdk.views.util.TilesLoadedListener;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
@@ -30,14 +32,20 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants {
     // Tracks the number of threads active in the getBitmapFromURL method.
     private AtomicInteger activeThreads = new AtomicInteger(0);
     protected boolean mEnableSSL = false;
+    
+    private String mUserAgent = null;
 
     public WebSourceTileLayer(final String pId, final String url) {
         this(pId, url, false);
     }
-
     public WebSourceTileLayer(final String pId, final String url, final boolean enableSSL) {
+        this(pId, url, enableSSL, true);
+    }
+    public WebSourceTileLayer(final String pId, final String url, final boolean enableSSL, final boolean shouldInit) {
         super(pId, url);
-        initialize(pId, url, enableSSL);
+        if (shouldInit) {
+            initialize(pId, url, enableSSL);
+        }
     }
 
     private boolean checkThreadControl() {
@@ -53,7 +61,12 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants {
         }
         return this;
     }
-
+    
+    public TileLayer setUserAgent(final String agent) {
+        this.mUserAgent = agent;
+        return this;
+    }
+    
     protected void initialize(String pId, String aUrl, boolean enableSSL) {
         mEnableSSL = enableSSL;
         setURL(aUrl);
@@ -165,8 +178,21 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants {
         }
 
         try {
-            HttpURLConnection connection = NetworkUtils.getHttpURLConnection(new URL(url));
-            Bitmap bitmap = BitmapFactory.decodeStream(connection.getInputStream());
+            OkHttpClient httpClient = NetworkUtils.getOkHttpClient();
+            Request request = NetworkUtils.getHttpRequest(url);
+            if (mUserAgent != null) {
+                httpClient = httpClient.clone();
+                httpClient.interceptors().add(new com.squareup.okhttp.Interceptor() {
+                    @Override public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
+                        com.squareup.okhttp.Request.Builder builder = chain.request().newBuilder();
+                        builder.addHeader("User-Agent", mUserAgent);
+                        return chain.proceed(builder.build());
+                    }
+                  });
+            }
+            Response response = httpClient.newCall(NetworkUtils.getHttpRequest(url)).execute();
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
             if (bitmap != null) {
                 aCache.putTileInMemoryCache(mapTile, bitmap);
             }

@@ -16,6 +16,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.tileprovider.constants.TileLayerConstants;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.ITileLayer;
 import com.mapbox.mapboxsdk.util.BitmapUtils;
+import com.mapbox.mapboxsdk.util.NetworkUtils;
 import com.mapbox.mapboxsdk.views.MapView;
 
 import uk.co.senab.bitmapcache.BitmapLruCache.OnDiskCacheSetListener;
@@ -160,6 +161,7 @@ public abstract class MapTileLayerBase implements IMapTileProviderCallback, Tile
         mTileRequestCompleteHandler = pDownloadFinishedListener;
         mTileSource = pTileSource;
         mTileCache = this.createTileCache(aContext);
+        NetworkUtils.createHttpCacheIfNecessary(aContext);
     }
 
     /**
