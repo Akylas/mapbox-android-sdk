@@ -81,7 +81,7 @@ public class Marker {
         this.setTitle(aTitle);
         this.setDescription(aDescription);
         this.mLatLng = aLatLng;
-//		mAnchor = DEFAULT_PIN_ANCHOR;
+        mAnchor = mv.getDefaultPinAnchor();
         mParentHolder = null;
     }
 
@@ -93,9 +93,7 @@ public class Marker {
     public Marker addTo(MapView mv) {
         mapView = mv;
         context = mv.getContext();
-        if (mAnchor == null) {
-            mAnchor = mv.getDefaultPinAnchor();
-        }
+
         if (mMarker == null) {
             //if there is an icon it means it's not loaded yet
             //thus change the drawable while waiting
