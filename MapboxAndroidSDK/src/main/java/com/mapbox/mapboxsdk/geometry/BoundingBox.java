@@ -2,8 +2,10 @@ package com.mapbox.mapboxsdk.geometry;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.views.util.constants.MapViewConstants;
+
 import java.io.Serializable;
 
 /**
@@ -12,6 +14,12 @@ import java.io.Serializable;
 public final class BoundingBox implements Parcelable, Serializable, MapViewConstants {
 
     static final long serialVersionUID = 2L;
+    public static final double MIN_LATITUDE = -90;
+    public static final double MAX_LATITUDE = 90;
+    public static final double MIN_LONGITUDE = -180;
+    public static final double MAX_LONGITUDE = 180;
+    public static final BoundingBox WORLD_BOUNDING_BOX = new BoundingBox(MAX_LATITUDE, MAX_LONGITUDE, MIN_LATITUDE, MIN_LONGITUDE);
+    public static final BoundingBox MIN_BOUNDING_BOX = new BoundingBox(MIN_LATITUDE, MIN_LONGITUDE, MAX_LATITUDE, MIN_LONGITUDE);
 
     private final double mLatNorth;
     private final double mLatSouth;
@@ -220,7 +228,24 @@ public final class BoundingBox implements Parcelable, Serializable, MapViewConst
                 (this.mLatSouth > pLatSouth) ? pLatSouth : this.mLatSouth,
                 (this.mLonWest > pLonWest) ? pLonWest : this.mLonWest);
     }
-
+    
+    /**
+     * Returns a new BoundingBox that stretches to contain both this and a point.
+     *
+     * @param latitude of the point to add
+     * @param longitude of the point to add
+     * @return BoundingBox
+     */
+    public BoundingBox union(double latitude, double longitude) {
+       return new BoundingBox( Math.max(mLatNorth, latitude), 
+               Math.max(mLonEast, longitude), 
+               Math.min(mLatSouth, latitude), 
+               Math.min(mLonWest, longitude));
+    }
+    
+    public BoundingBox union(final LatLng point) {
+        return union(point.getLatitude(), point.getLongitude());
+     }
     /**
      * Returns a new BoundingBox that is the intersection of this with another box
      *
