@@ -39,7 +39,7 @@ public class MBTilesFileArchive implements IArchiveFile {
 
     @Override
     public InputStream getInputStream(final ITileLayer pTileSource, final MapTile pTile) {
-        return getInputStream(pTile.getX(), pTile.getY(), pTile.getX());
+        return getInputStream(pTile.getX(), pTile.getY(), pTile.getZ());
     }
     
     @Override
