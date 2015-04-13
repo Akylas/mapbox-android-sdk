@@ -14,7 +14,8 @@ import java.util.Locale;
  */
 public class MapboxTileLayer extends TileJsonTileLayer implements MapViewConstants, MapboxConstants {
     private static final String TAG = "MapboxTileLayer";
-    private String mId;
+    private final String mId;
+    private final String mToken;
 
     /**
      * Initialize a new tile layer, directed at a hosted Mapbox tilesource.
@@ -26,19 +27,20 @@ public class MapboxTileLayer extends TileJsonTileLayer implements MapViewConstan
     }
 
     public MapboxTileLayer(String mapId, boolean enableSSL) {
-        super(mapId, mapId, enableSSL);
+        this(mapId, MapboxUtils.getAccessToken(), enableSSL);
     }
-
-    @Override
-    protected void initialize(String pId, String aUrl, boolean enableSSL) {
-        mId = pId;
-        super.initialize(pId, aUrl, enableSSL);
+    
+    public MapboxTileLayer(String mapId, String token, boolean enableSSL) {
+        super(mapId, mapId, enableSSL, false);
+        mId = mapId;
+        mToken = token;
+        initialize(mId, mId, enableSSL);
     }
 
     @Override
     public TileLayer setURL(final String aUrl) {
         if (!TextUtils.isEmpty(aUrl) && !aUrl.toLowerCase(Locale.US).contains("http://") && !aUrl.toLowerCase(Locale.US).contains("https://")) {
-            super.setURL(MAPBOX_BASE_URL_V4 + aUrl + "/{z}/{x}/{y}{2x}.png?access_token=" + MapboxUtils.getAccessToken());
+            super.setURL(MAPBOX_BASE_URL_V4 + aUrl + "/{z}/{x}/{y}{2x}.png?access_token=" + mToken);
         } else {
             super.setURL(aUrl);
         }
@@ -47,7 +49,7 @@ public class MapboxTileLayer extends TileJsonTileLayer implements MapViewConstan
 
     @Override
     protected String getBrandedJSONURL() {
-        String url = String.format(MAPBOX_BRANDED_JSON_URL_V4, mId, MapboxUtils.getAccessToken());
+        String url = String.format(MAPBOX_BRANDED_JSON_URL_V4, mId, mToken);
         if (!mEnableSSL) {
             url = url.replace("https://", "http://");
             url = url.replace("&secure=1", "");
