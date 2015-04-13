@@ -44,9 +44,10 @@ public class MapTileLayerBasic extends MapTileLayerArray implements IMapTileProv
         }
         synchronized (mTileProviderList) {
             if (index < 0 || index > mTileProviderList.size()) {
-                return;
+                mTileProviderList.add(downloaderProvider);
+            } else {
+                mTileProviderList.add(index, downloaderProvider);
             }
-            mTileProviderList.add(index, downloaderProvider);
         }
     }
 
